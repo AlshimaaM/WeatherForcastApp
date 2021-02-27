@@ -1,8 +1,10 @@
 package com.example.myapplication.view.fragment
 
+import android.app.AlertDialog
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
@@ -25,11 +28,8 @@ import com.example.myapplication.model.Model
 import com.example.myapplication.viewmodel.FavoriteViewModel
 import com.example.myapplication.viewmodel.WeatherViewModel
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.ArrayList
+import kotlinx.coroutines.*
+import java.util.*
 
 class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
 
@@ -47,11 +47,11 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         }
     }
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         binding= DataBindingUtil.inflate(inflater, R.layout.fragment_favorite, container, false)
-        init()
+        init( )
         if (Available(requireContext())) {
             if (latLng != null) {
 
@@ -62,8 +62,7 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         } else {
             dataFromDatabase()
         }
-        //viewWeatherFav(latLng!!.latitude.toString(), latLng!!.longitude.toString())
-
+        deleteItemBySwabbing()
 
         return binding.root
     }
@@ -135,7 +134,6 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
             )
         }
         val database1 = FavouritEntity(
-                id ,
                 model.current.dt,
                 model.current.temp,
                 model.current.pressure,
@@ -152,15 +150,56 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
     }
     fun dataFromDatabase() {
         viewModel.getFavoriteFromDB(requireContext()).observe(viewLifecycleOwner, Observer {
-            it?.let{
-                favData=it
-                favAdapter.setData(it,requireContext())
+            it?.let {
+                favData = it
+                favAdapter.setData(it, requireContext())
                 binding.favRecycle.adapter = favAdapter
 
             }
         })
     }
+    private fun deleteItemBySwabbing() {
+        // Delete subject by swabbing item left and right
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(90, ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                return false
+            }
 
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val trip: FavouritEntity = favAdapter.getItem(position)!!
+                openDialog(context, trip,viewHolder)
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(binding.favRecycle)
+    }
+
+
+    fun openDialog(context: Context?, trip: FavouritEntity?,viewHolder: RecyclerView.ViewHolder) {
+        val position = viewHolder.adapterPosition
+
+        val builder1 = AlertDialog.Builder(context)
+        builder1.setTitle("Are you sure delete trip " + trip?.city.toString() + " ? ")
+        builder1.setCancelable(false)
+        builder1.setPositiveButton("Ok") { dialog, which ->
+            CoroutineScope(  Dispatchers.IO).launch {
+                try {
+                    viewModel.deleteFav(favAdapter.getItem(position)!! , requireContext())
+                } catch (e: Exception) {
+                    Log.i("Remove", "onBindViewHolder: a" + e.message)
+                }
+            }
+            //adapter.setTrips(tripList);
+        }
+        builder1.setNegativeButton("CANCEL") { dialog, which ->
+            if (context != null) {
+                favAdapter.setData(favData,context)
+            }
+            dialog.dismiss()
+        }
+        builder1.create()
+        builder1.show()
+    }
 
     override fun onClick(position: Int) {
         val favoriteItem = bundleOf("favoriteItem" to favData.get(position))

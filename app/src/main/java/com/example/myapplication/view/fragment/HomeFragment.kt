@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
@@ -77,36 +78,33 @@ class HomeFragment :  Fragment()  {
                 })
         }
 
-        viewWeather(Setting.latitude, Setting.longitude)
+        if (Available(requireContext())) {
+            viewWeather(Setting.latitude, Setting.longitude)
 
+        } else {
+            readFromDatabase()
+        }
         return binding.root
         }
-   /* fun viewWeather(latitude: String, longitude: String){
-        homeViewModel.fetchweather(latitude, longitude).observe(viewLifecycleOwner, {
-            binding.pressure.text = it.current.pressure.toString()
-            binding.dateHome.text = "${RetrofitInstance.dateNow}"
-            binding.tempreture.text = it.current.temp.toString()
-            binding.humidity.text = it.current.humidity.toString() + "%"
-            binding.cloud.text = it.current.clouds.toString()
-            binding.cityName.text = it.timezone
-            binding.wind.text = it.current.wind_speed.toString()
-            binding.discription.text = it.current.weather[0].description
-            binding.maxTep.text = it.daily[0].temp.max.toString()
-            binding.minTep.text = it.daily[0].temp.min.toString()
 
-            icon = it.current.weather[0].icon
-            context?.let {
-                Glide.with(it).load(getImage(icon)).into(binding.iconToday)
+    fun Available(context: Context): Boolean {
+        var connected = false
+        var connected1 = false
+        var connected2 = false
+        val s = Context.CONNECTIVITY_SERVICE
+        val manager = context.getSystemService(s) as ConnectivityManager?
+        val info = manager?.activeNetworkInfo
+        if (info != null && info.isConnected) {
+            connected = info.type == ConnectivityManager.TYPE_WIFI
+            connected1 = info.type == ConnectivityManager.TYPE_MOBILE
+            if (connected || connected1) {
+                connected2 = true
             }
-            var listHours: List<Hourly> = it.hourly
-            var listDaily: List<Daily> = it.daily
-            hoursAdapter.setData(listHours, requireContext())
-            binding.hoursRecyclerview.adapter = hoursAdapter
-            dayAdapter.fetchData(listDaily, requireContext())
-            binding.daysRecyclerview.adapter = dayAdapter
-        })
-
-    }*/
+        } else {
+            connected2 = false
+        }
+        return connected2
+    }
 
     @SuppressLint("MissingPermission")
      fun getLastLocation() {

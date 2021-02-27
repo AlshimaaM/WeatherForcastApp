@@ -69,9 +69,9 @@ class MapFragment : Fragment() , GoogleMap.OnMapClickListener {
                         val latLng = LatLng(address.latitude, address.longitude)
                         mMap!!.addMarker(MarkerOptions().position(latLng).title(location))
                       //  mMap!!.animateCamera(CameraUpdateFactory.newLatLng(latLng))
-                       /// onMapClick(latLng)
-                        Toast.makeText(requireActivity(),address.latitude.toString() + " " + address.longitude,
-                            Toast.LENGTH_LONG).show()
+                     onMapClick(latLng)
+                       /* Toast.makeText(requireActivity(),address.latitude.toString() + " " + address.longitude,
+                            Toast.LENGTH_LONG).show()*/
                     }else{
                        invalidAddressToast(requireActivity())
                     }

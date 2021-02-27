@@ -75,6 +75,10 @@ class WeatherRepositiry {
         val database = WeatherDatabaseInstance.getInstance(context)
         return database.favouritDao().getFavWeather()
     }
+    fun deletFavorite(fDatabase: FavouritEntity, context: Context) {
+        val database = WeatherDatabaseInstance.getInstance(context).favouritDao().deleteFavWeather(fDatabase)
+
+    }
 
 
 

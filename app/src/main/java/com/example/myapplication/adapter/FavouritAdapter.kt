@@ -11,8 +11,7 @@ import com.bumptech.glide.Glide
 import com.example.myapplication.R
 import com.example.myapplication.data.local.database.entity.FavouritEntity
 import com.example.myapplication.data.remote.RetrofitInstance
-import com.example.myapplication.view.fragment.FavoriteFragment
-import java.util.ArrayList
+import java.util.*
 
 class FavouritAdapter  : RecyclerView.Adapter<FavouritAdapter.ViewHolder>(){
     private lateinit var data  : List<FavouritEntity>
@@ -21,11 +20,11 @@ class FavouritAdapter  : RecyclerView.Adapter<FavouritAdapter.ViewHolder>(){
     init {
        data = ArrayList<FavouritEntity>()
     }
-    fun setData (data : List<FavouritEntity>, context: Context){
+    fun setData(data: List<FavouritEntity>, context: Context){
         this.data = data
         this.context = context
     }
-    inner class ViewHolder(itemView:View) : RecyclerView.ViewHolder(itemView), View.OnClickListener{
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener{
         init {
             itemView.setOnClickListener(this)
         }
@@ -40,13 +39,16 @@ class FavouritAdapter  : RecyclerView.Adapter<FavouritAdapter.ViewHolder>(){
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.favourit_item,parent,false)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.favourit_item, parent, false)
 
         return ViewHolder(v)
     }
 
     override fun getItemCount(): Int {
         return data.size
+    }
+    fun getItem(position: Int): FavouritEntity? {
+        return data.get(position)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

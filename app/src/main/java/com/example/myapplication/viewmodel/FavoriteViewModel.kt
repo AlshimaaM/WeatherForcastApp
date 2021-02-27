@@ -23,5 +23,8 @@ class FavoriteViewModel : ViewModel() {
     fun getFavoriteFromDB(context: Context): LiveData<List<FavouritEntity>> {
         return forecastRepository.favoriteFromDatabase(context)
     }
+    fun deleteFav(favouritDatabase: FavouritEntity, context: Context) {
+       forecastRepository.deletFavorite(favouritDatabase,context)
+    }
 
 }
