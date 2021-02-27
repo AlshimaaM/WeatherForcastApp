@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Project</string>
+    <string name="title_home">Home</string>
+    <string name="title_fav">Favorite</string>
+    <string name="title_alert">Alerts</string>
+    <string name="title_settings">Settings</string>
+    <string name="location">Location</string>
+    <string name="units">Units</string>
+    <string name="language">Language</string>
+    <string name="unite_system">Unit system</string>
+    <string name="lang_system">Language system</string>
+    <string name="use_device_location">Use device location</string>
+    <string name="allow_location">Allow the app to get your location</string>
+    <string name="location_disabled">The location for which the weather is displayed</string>
+    <string name="land_support">Language the system support</string>
+    <string name="city">City</string>
+    <string name="temperature">Temperature</string>
+    <string name="wind">Wind</string>
+    <string name="clouds">Clouds</string>
+    <string name="pressure">Pressure</string>
+    <string name="humidity">Humidity</string>
+    <string name="more_details_about_weather">More Details About Weather</string>
+    <string name="_24_hour">Weather 24-Hours</string>
+    <string name="_7_day_frecast">7-Day Forcast</string>
+
+    <string name="google_maps_key">AIzaSyAb_pEfMn2JMapUUFoiQttujJk7CnIGf-A</string>
+</resources>

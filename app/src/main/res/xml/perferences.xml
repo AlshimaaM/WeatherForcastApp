@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/location"
+        app:icon="@drawable/ic_location">
+        <SwitchPreferenceCompat
+            app:disableDependentsState="true"
+            app:key="USE_DEVICE_LOCATION"
+            app:summary="@string/allow_location"
+            app:title="@string/use_device_location"
+            app:defaultValue="true" />
+        <EditTextPreference
+            app:key="CUSTOM_LOCATION"
+            app:title="@string/location"
+            app:summary="@string/location_disabled"
+            app:defaultValue="Cairo"
+            app:dependency="USE_DEVICE_LOCATION" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory app:title="@string/units"
+        app:icon="@drawable/ic_unit">
+        <ListPreference
+            app:defaultValue="K"
+            app:entries="@array/unitSystemEntries"
+            app:entryValues="@array/unitSystemValues"
+            app:key="UNIT_SYSTEM"
+            app:title="@string/unite_system"
+            app:summary="%s"/>
+
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory app:title="@string/language"
+        app:icon="@drawable/ic_language">
+        <ListPreference
+            app:defaultValue="En"
+            app:entries="@array/langSystemEntries"
+            app:entryValues="@array/langSystemValues"
+            app:key="LANGUAGE_SYSTEM"
+            app:title="@string/lang_system"
+            app:summary="@string/land_support"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

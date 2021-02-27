@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Project</string>
+    <string name="title_home">الصفحه الرئيسيه</string>
+    <string name="title_fav">المفضله</string>
+    <string name="title_alert">التنبيهات</string>
+    <string name="title_settings">الإعدادات</string>
+    <string name="location">الموقع</string>
+    <string name="units">الوحدات</string>
+    <string name="language">اللغه</string>
+    <string name="unite_system">وحده النظام</string>
+    <string name="lang_system">لغه النظام</string>
+    <string name="use_device_location">استخدام موقع الجهاز</string>
+    <string name="allow_location">السماح للبرنامج بالحصول علي موقعك</string>
+    <string name="location_disabled">الموقع للحصول علي الطقس مفعّل</string>
+    <string name="land_support">يدعم لغه النظام</string>
+    <string name="city">المدينه</string>
+    <string name="temperature">درجه الحراره</string>
+    <string name="wind">الرياح</string>
+    <string name="clouds">السحاب</string>
+    <string name="pressure">الضغط</string>
+    <string name="humidity">الرطوبه</string>
+    <string name="more_details_about_weather">تفاصيل أكثر عن الطقس</string>
+    <string name="_24_hour">الطقس 24-ساعه</string>
+    <string name="_7_day_frecast">توقعات 7-أيام قادمه</string>
+</resources>
