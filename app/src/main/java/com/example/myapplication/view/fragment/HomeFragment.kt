@@ -40,10 +40,7 @@ import com.example.myapplication.model.Model
 import com.example.myapplication.provider.Setting
 import com.example.myapplication.viewmodel.WeatherViewModel
 import com.google.android.gms.location.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class HomeFragment :  Fragment()  {
     lateinit var sharedPreferences: SharedPreferences
@@ -286,8 +283,7 @@ class HomeFragment :  Fragment()  {
     fun viewWeather(latitude: String, longitude: String) {
         homeViewModel.fetchweather(latitude, longitude).observe(viewLifecycleOwner, Observer {
             var weatherDatabase = writeIntoDatabase(it)
-            GlobalScope.launch {
-                Dispatchers.IO
+            CoroutineScope(Dispatchers.IO).launch {
                 homeViewModel.weatherDatabase(weatherDatabase, requireContext())
                 withContext(Dispatchers.Main) {
                     readFromDatabase()

@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <variable
+            name="enableLocation"
+            type="com.example.myapplication.model.Model" />
     </data>
     <ScrollView
         android:layout_width="match_parent"

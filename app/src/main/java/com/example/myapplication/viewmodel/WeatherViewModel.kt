@@ -20,7 +20,7 @@ class WeatherViewModel : ViewModel() {
         weatherMutableLiveData = weatherRepositiry.getWeather(lat, lng)
         return weatherMutableLiveData
     }
-    suspend fun weatherDatabase(weatherdatabase: WeatherEntity, context: Context) {
+     fun weatherDatabase(weatherdatabase: WeatherEntity, context: Context) {
         weatherRepositiry.weatherDatabase(weatherdatabase, context)
     }
 

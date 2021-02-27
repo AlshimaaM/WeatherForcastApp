@@ -66,7 +66,7 @@ class WeatherRepositiry {
         return database.weatherDao().getCurrentWeather()
     }
 
-     fun favoriteDatabase(fDatabase: FavouritEntity, context: Context) {
+     fun favoriteIntoDatabase(fDatabase: FavouritEntity, context: Context) {
         val database = WeatherDatabaseInstance.getInstance(context)
             database.favouritDao().insertFavWeather(fDatabase)
     }

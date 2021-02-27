@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_favoriteFragment_to_mapsFragment"
             app:destination="@id/navigation_maps" />
+        <action
+            android:id="@+id/action_favouritFragment_to_detailsFragment"
+            app:destination="@id/nav_details" />
     </fragment>
 
     <fragment
@@ -41,4 +44,12 @@
         android:name="com.example.myapplication.view.fragment.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/nav_details"
+        android:name="com.example.myapplication.view.fragment.FavoriteDetailsFragment"
+        android:label="DetailsFragment" >
+        <action
+            android:id="@+id/action_detailsFragment_to_favouritFragment"
+            app:destination="@id/navigation_fav" />
+    </fragment>
 </navigation>
