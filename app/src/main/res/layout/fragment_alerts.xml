@@ -108,7 +108,7 @@
             android:layout_width="150dp"
             android:layout_height="60dp"
             android:layout_margin="16dp"
-            android:backgroundTint="#DC7971"
+            android:backgroundTint="@color/light_red"
             android:gravity="center"
             android:text="Add Alert"
             android:textStyle="bold"

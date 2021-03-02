@@ -1,55 +1,36 @@
 package com.example.myapplication.view.activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.R
 import com.example.myapplication.databinding.SplashActivityBinding
-import com.example.myapplication.viewmodel.SplashState
-import com.example.myapplication.viewmodel.SplashViewModel
-
+import kotlinx.coroutines.*
 
 class SplashActivity : AppCompatActivity() {
 
-
-    lateinit var mBinding: SplashActivityBinding
-
-    val viewModel by lazy {
-        ViewModelProvider(this)[SplashViewModel::class.java]
-    }
+    lateinit var binding: SplashActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mBinding = SplashActivityBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
-       ///setUpStatusBar(this, 1)
+        binding = SplashActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        viewModel.liveData.observe(this, Observer {
-            when (it) {
-                is SplashState.MainActivity -> {
-                    goToMainActivity()
-                }
-            }
-        })
+        GlobalScope.launch {
+            val animation: Animation = AnimationUtils.loadAnimation(this@SplashActivity, R.anim.bottom_to_top)
+            binding.imgSplashLogo.setVisibility(View.VISIBLE)
+            animation.reset()
 
+            binding.imgSplashLogo.startAnimation(animation)
+            delay(3000)
+            var intent = Intent(this@SplashActivity, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
-
-        val a: Animation = AnimationUtils.loadAnimation(this, R.anim.slide_up)
-        a.reset()
-
-       mBinding.imgSplashLogo.clearAnimation()
-        mBinding.imgSplashLogo.startAnimation(a)
-
-    }
-
-    private fun goToMainActivity() {
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
-        finish()
     }
 
 }
