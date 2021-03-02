@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.myapplication.R
 import com.example.myapplication.data.local.database.entity.DaysEntity
+import com.example.myapplication.data.local.database.entity.HoursEntity
 import com.example.myapplication.data.remote.RetrofitInstance
 import com.example.myapplication.model.Daily
 import com.example.myapplication.util.Constant
@@ -37,15 +39,7 @@ class DayAdapter : RecyclerView.Adapter<DayAdapter.ViewHolder>() {
 
     }
     override fun onBindViewHolder(holder: DayAdapter.ViewHolder, position: Int) {
-        holder.max_temp.text = days[position].maxTemp.toString()
-        holder.min_temp.text=days[position].minTemp.toString()
-      var temp=days[position].date
-        holder.day_name.text= Constant.convertLongToDay(temp)
-
-
-        context?.let {
-            Glide.with(it).load(RetrofitInstance.getImage(days[position].icon)).into(holder.icon)
-        }
+          holder.bind(days[position],context)
     }
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         val max_temp = itemView.findViewById(R.id.day_max_temp) as TextView
@@ -53,6 +47,16 @@ class DayAdapter : RecyclerView.Adapter<DayAdapter.ViewHolder>() {
         val min_temp = itemView.findViewById(R.id.day_min_temp) as TextView
         val day_name = itemView.findViewById(R.id.day_name) as TextView
 
+        fun bind(days: DaysEntity, context: Context) {
+            max_temp.text = days.maxTemp.toString()
+            min_temp.text=days.minTemp.toString()
+            var temp=days.date
+            day_name.text= Constant.convertLongToDay(temp)
+
+            context?.let {
+                Glide.with(it).load(RetrofitInstance.getImage(days.icon)).into(icon)
+            }
+        }
     }
 
 }

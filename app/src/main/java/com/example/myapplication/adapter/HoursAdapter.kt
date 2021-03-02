@@ -1,7 +1,6 @@
 package com.example.myapplication.adapter
 
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,18 +35,7 @@ class HoursAdapter () : RecyclerView.Adapter<HoursAdapter.ViewHolder>(){
     }
 
     override fun onBindViewHolder(holder: HoursAdapter.ViewHolder, position: Int) {
-        holder.textTemp.text = hours[position].tempture.toString()
-        holder.textHour.text = hours[position].date.toString()
-        holder.textHour.text="${RetrofitInstance.formateTime(hours[position].date)}"
-        if(position %2 == 0){
-            holder.card.setCardBackgroundColor(ContextCompat.getColor(context,R.color.light_red));
-        }else {
-            holder.card.setCardBackgroundColor(ContextCompat.getColor(context,R.color.light_blue));
-        }
-
-        context?.let {
-            Glide.with(it).load(RetrofitInstance.getImage(hours[position].icon)).into(holder.icon)
-        }
+        holder.bind(hours[position],context)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
@@ -55,6 +43,22 @@ class HoursAdapter () : RecyclerView.Adapter<HoursAdapter.ViewHolder>(){
         val textTemp = itemView.findViewById(R.id.hour_temp) as TextView
         val textHour = itemView.findViewById(R.id.hour) as TextView
         val icon = itemView.findViewById(R.id.hour_icon) as ImageView
+
+
+        fun bind(hours: HoursEntity,context: Context) {
+            textTemp.text = hours.tempture.toString()
+            textHour.text = hours.date.toString()
+            textHour.text="${RetrofitInstance.formateTime(hours.date)}"
+            if(position %2 == 0){
+                card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.light_red));
+            }else {
+                card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.light_blue));
+            }
+
+            context?.let {
+                Glide.with(it).load(RetrofitInstance.getImage(hours.icon)).into(icon)
+            }
+        }
     }
 
 

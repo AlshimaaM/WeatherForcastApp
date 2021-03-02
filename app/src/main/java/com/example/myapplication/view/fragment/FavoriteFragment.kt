@@ -91,7 +91,7 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         favData =ArrayList()
         favAdapter = FavouritAdapter()
         favAdapter.setOnItemClickListener(this)
-        binding.btnFab.setOnClickListener(View.OnClickListener {
+        binding.btnFab.setOnClickListener( {
             Navigation.findNavController(it).navigate(R.id.action_favoriteFragment_to_mapsFragment)
 
         })
@@ -203,9 +203,6 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
 
     override fun onClick(position: Int) {
         val favoriteItem = bundleOf("favoriteItem" to favData.get(position))
-        findNavController().navigate(
-                R.id.action_favouritFragment_to_detailsFragment,
-                favoriteItem
-        )
+        findNavController().navigate(R.id.action_favouritFragment_to_detailsFragment, favoriteItem)
     }
 }

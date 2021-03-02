@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.myapplication.R
 import com.example.myapplication.data.local.database.entity.FavouritEntity
+import com.example.myapplication.data.local.database.entity.HoursEntity
 import com.example.myapplication.data.remote.RetrofitInstance
 import java.util.*
 
@@ -32,6 +34,13 @@ class FavouritAdapter  : RecyclerView.Adapter<FavouritAdapter.ViewHolder>(){
         val textTemp = itemView.findViewById(R.id.txt_temperature) as TextView
         val icon = itemView.findViewById(R.id.fav_icon) as ImageView
 
+        fun bind(data: FavouritEntity, context: Context) {
+            textCity.text =data.city
+           textTemp.text=data.temp.toString()
+            context?.let {
+                Glide.with(it).load(RetrofitInstance.getImage(data.icon)).into(icon)
+            }
+        }
 
         override fun onClick(v: View?) {
             onItemClickListLener.onClick(adapterPosition)
@@ -52,12 +61,7 @@ class FavouritAdapter  : RecyclerView.Adapter<FavouritAdapter.ViewHolder>(){
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        var model = data.get(position)
-        holder.textCity.text =model.city
-        holder.textTemp.text=model.temp.toString()
-        context?.let {
-            Glide.with(it).load(RetrofitInstance.getImage(model.icon)).into(holder.icon)
-        }
+     holder.bind(data[position],context)
     }
     interface OnItemClickListener {
         fun onClick(position: Int)
