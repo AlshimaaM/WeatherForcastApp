@@ -42,8 +42,12 @@
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.example.myapplication.view.fragment.SettingsFragment"
-        android:label="@string/title_settings"
-        tools:layout="@layout/fragment_settings" />
+        android:label="@string/title_settings">
+    <action
+        android:id="@+id/action_settingsFragment_to_mapSettingsFragment"
+        app:destination="@id/mapSettingFragment" />
+        />
+    </fragment>
     <fragment
         android:id="@+id/nav_details"
         android:name="com.example.myapplication.view.fragment.FavoriteDetailsFragment"
@@ -51,5 +55,14 @@
         <action
             android:id="@+id/action_detailsFragment_to_favouritFragment"
             app:destination="@id/navigation_fav" />
+    </fragment>
+    <fragment
+        android:id="@+id/mapSettingFragment"
+        android:name="com.example.myapplication.view.fragment.MapSettingFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_mapSettingFragment_to_homeFragment"
+            app:destination="@id/navigation_home" />
     </fragment>
 </navigation>

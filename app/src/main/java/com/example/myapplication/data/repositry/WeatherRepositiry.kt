@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.app.weatherapp.mvvm.data.remote.PlaceReponseOneApi.GeoModel
 import com.example.myapplication.data.local.database.WeatherDao
 import com.example.myapplication.data.local.database.WeatherDatabaseInstance
+import com.example.myapplication.data.local.database.entity.AlertEntity
 import com.example.myapplication.data.local.database.entity.FavouritEntity
 import com.example.myapplication.data.local.database.entity.WeatherEntity
 import com.example.myapplication.data.remote.RetrofitInstance
@@ -80,6 +81,25 @@ class WeatherRepositiry {
 
     }
 
+    suspend fun addAlert(alertDatabase: AlertEntity, context: Context) {
+        val database = WeatherDatabaseInstance.getInstance(context)
+        GlobalScope.launch {
+            Dispatchers.IO
+            database.alertDao().insertAlert(alertDatabase)
+        }
+    }
 
+    fun getAlert(context: Context): LiveData<MutableList<AlertEntity>> {
+        val database = WeatherDatabaseInstance.getInstance(context)
+        return database.alertDao().getAlerts()
+    }
+
+    fun deleteAlert(alertDatabase: AlertEntity,context: Context) {
+        val database = WeatherDatabaseInstance.getInstance(context)
+        GlobalScope.launch {
+            Dispatchers.IO
+            database.alertDao().deleteAlert(alertDatabase)
+        }
+    }
 
 }

@@ -22,6 +22,7 @@
     <string name="more_details_about_weather">More Details About Weather</string>
     <string name="_24_hour">Weather 24-Hours</string>
     <string name="_7_day_frecast">7-Day Forcast</string>
+    <string name="notification_and_alert">"Notification and Alert</string>
 
     <string name="google_maps_key">AIzaSyAb_pEfMn2JMapUUFoiQttujJk7CnIGf-A</string>
     <string name="enter_city_name">Enter City Name</string>

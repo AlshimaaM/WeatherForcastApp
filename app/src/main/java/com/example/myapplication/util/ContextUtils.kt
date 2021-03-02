@@ -1,6 +1,7 @@
 package com.example.myapplication.util
 
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -28,6 +29,5 @@ class ContextUtils(base: Context) : ContextWrapper(base) {
             config.setLocale(locale)
             resources.updateConfiguration(config, resources.displayMetrics)
         }
-
     }
 }

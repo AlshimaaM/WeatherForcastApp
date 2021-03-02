@@ -70,8 +70,6 @@ class MapFragment : Fragment() , GoogleMap.OnMapClickListener {
                         mMap!!.addMarker(MarkerOptions().position(latLng).title(location))
                       //  mMap!!.animateCamera(CameraUpdateFactory.newLatLng(latLng))
                      onMapClick(latLng)
-                       /* Toast.makeText(requireActivity(),address.latitude.toString() + " " + address.longitude,
-                            Toast.LENGTH_LONG).show()*/
                     }else{
                        invalidAddressToast(requireActivity())
                     }

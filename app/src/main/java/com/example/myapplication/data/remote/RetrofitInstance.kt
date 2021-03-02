@@ -53,16 +53,16 @@ object RetrofitInstance {
         return getGeoAPI().getPlaceData(citName = location, key = Constant.API_KEY)
     }
 
+    fun getImage(icon: String): String {
+        return "http://openweathermap.org/img/w/${icon}.png"
+    }
+
     val dateNow: String
         get() {
             val dateFormat = SimpleDateFormat("EEE,dd MM yyyy hh:mm a")
             val date = Date()
             return dateFormat.format(date)
         }
-
-    fun getImage(icon: String): String {
-        return "http://openweathermap.org/img/w/${icon}.png"
-    }
 
     fun formateTime(format: Int): String {
         val dateFormat = SimpleDateFormat("HH:mm a")

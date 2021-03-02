@@ -3,6 +3,7 @@ package com.example.myapplication.data.local.database.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.myapplication.model.AlertsItem
 
 
 @Entity(tableName = "weather_table")
@@ -19,5 +20,7 @@ data class WeatherEntity(
     val descrption: String,
     val city: String,
     val hour_Weather: List<HoursEntity>,
-    val dail_Weather: List<DaysEntity>
+    val dail_Weather: List<DaysEntity>,
+    val alerts_Weather: List<AlertsItem>
+
 )

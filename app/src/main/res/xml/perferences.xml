@@ -9,12 +9,26 @@
             app:summary="@string/allow_location"
             app:title="@string/use_device_location"
             app:defaultValue="true" />
+        <SwitchPreference
+        app:defaultValue="false"
+        app:dependency="USE_DEVICE_LOCATION"
+        app:key="MAP_LOCATION"
+        app:summary="Location from map"
+        app:title="Map Location" />
         <EditTextPreference
             app:key="CUSTOM_LOCATION"
             app:title="@string/location"
             app:summary="@string/location_disabled"
             app:defaultValue="Cairo"
             app:dependency="USE_DEVICE_LOCATION" />
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/notification_and_alert"
+        app:icon="@drawable/ic_alerts">
+    <SwitchPreference
+        app:defaultValue="true"
+        app:key="ALERT"
+        app:summary="Notification Alert"
+        app:title="Notification Alert" />
     </PreferenceCategory>
 
 

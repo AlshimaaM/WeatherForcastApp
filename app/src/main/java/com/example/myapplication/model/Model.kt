@@ -9,9 +9,17 @@ data class Model(
         @SerializedName("timezone_offset") val timezone_offset : Int,
         @SerializedName("current") val current : Current,
         @SerializedName("hourly") val hourly : List<Hourly>,
-        @SerializedName("daily") val daily : List<Daily>)
+        @SerializedName("daily") val daily : List<Daily>,
+        @SerializedName("alerts") val alerts: List<AlertsItem>)
 
 
+data class AlertsItem(
+        @SerializedName("sender_name") val senderName: String,
+        @SerializedName("start") val start: Int,
+        @SerializedName("description") val description: String,
+        @SerializedName("end") val end: Int,
+        @SerializedName("event") val event: String
+)
 data class Current (
         @SerializedName("dt") val dt : Int,
         @SerializedName("sunrise") val sunrise : Int,

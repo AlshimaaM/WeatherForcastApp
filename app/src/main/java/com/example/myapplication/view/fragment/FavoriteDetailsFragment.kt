@@ -58,7 +58,6 @@ class FavoriteDetailsFragment : Fragment() {
             else
             {
                 binding.tempreture.text = favoriteItem!!.temp.toString()+"°F"
-
             }
             binding.pressure.text = favoriteItem!!.pressure.toString()
             binding.dateHome.text = "${RetrofitInstance.dateNow}"

@@ -13,7 +13,7 @@ interface WeatherAPI {
     @GET("onecall")
     fun getWeather(@Query("lat")lat:String, @Query("lon")lng:String,
                    @Query("exclude")exclude:String, @Query("units")units:String="metric",
-                   @Query("lang")languageCode:String="ar", @Query("appid")appid:String): Call<Model>
+                   @Query("lang")languageCode:String, @Query("appid")appid:String): Call<Model>
 
     @GET("direct")
     fun getPlaceData(
