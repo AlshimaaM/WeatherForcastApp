@@ -1,7 +1,9 @@
 package com.example.myapplication.view.activity
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -29,5 +31,13 @@ class MainActivity : AppCompatActivity() {
         ))
         navView.setupWithNavController(navController)
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("TAG", "LOCATION_PERMISSION_REQUEST_CODE111111 $requestCode")
+        val fragment = supportFragmentManager.findFragmentById(R.id.navigation_home)
+        fragment!!.onActivityResult(requestCode, resultCode, data)
+    }
+
 
 }

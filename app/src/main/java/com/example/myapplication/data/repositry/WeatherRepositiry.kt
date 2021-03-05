@@ -2,10 +2,10 @@ package com.example.myapplication.data.repositry
 
 import android.app.Application
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.app.weatherapp.mvvm.data.remote.PlaceReponseOneApi.GeoModel
-import com.example.myapplication.data.local.database.WeatherDao
 import com.example.myapplication.data.local.database.WeatherDatabaseInstance
 import com.example.myapplication.data.local.database.entity.AlertEntity
 import com.example.myapplication.data.local.database.entity.FavouritEntity
@@ -13,13 +13,15 @@ import com.example.myapplication.data.local.database.entity.WeatherEntity
 import com.example.myapplication.data.remote.RetrofitInstance
 import com.example.myapplication.model.Model
 import com.example.myapplication.provider.Setting
+import com.example.myapplication.util.ContextUtils.Companion.offlineToast
+import com.example.myapplication.view.activity.MainActivity
 import kotlinx.coroutines.*
 import java.lang.Exception
+import kotlin.coroutines.CoroutineContext
 
 class WeatherRepositiry {
     private  var weatherMutableLiveData: MutableLiveData<Model> = MutableLiveData()
     private  var locationMutableLiveData: MutableLiveData<GeoModel> = MutableLiveData()
-
 
     fun getWeather(latitude: String, longitude: String): MutableLiveData<Model> {
         CoroutineScope(Dispatchers.IO).launch {
@@ -36,10 +38,12 @@ class WeatherRepositiry {
                     }
                 }
             } catch (e: Exception) {
+             //  Toast.makeText(coroutineContext,e.localizedMessage,Toast.LENGTH_LONG).show()
+                println("llllllllllllllllllllllllllllllllll"+e.message)
             }
-        }
-        return weatherMutableLiveData
+            }
 
+        return weatherMutableLiveData
     }
 
     fun getPlace(location: String): MutableLiveData<GeoModel> {
@@ -57,7 +61,7 @@ class WeatherRepositiry {
         return locationMutableLiveData
     }
 
-     fun weatherDatabase(wDB: WeatherEntity, context: Context) {
+    suspend  fun weatherDatabase(wDB: WeatherEntity, context: Context) {
         val database = WeatherDatabaseInstance.getInstance(context)
           database.weatherDao().insertCurrentWeather(wDB)
 
@@ -67,7 +71,7 @@ class WeatherRepositiry {
         return database.weatherDao().getCurrentWeather()
     }
 
-     fun favoriteIntoDatabase(fDatabase: FavouritEntity, context: Context) {
+    suspend  fun favoriteIntoDatabase(fDatabase: FavouritEntity, context: Context) {
         val database = WeatherDatabaseInstance.getInstance(context)
             database.favouritDao().insertFavWeather(fDatabase)
     }

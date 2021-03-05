@@ -12,6 +12,30 @@
         android:layout_height="match_parent"
         tools:context=".view.fragment.FavoriteFragment">
 
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/empty_list"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/empty_box"
+            android:layout_marginTop="55dp"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txt_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/empty_list"
+            android:layout_marginTop="8dp"
+            android:text="@string/empty_list"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:visibility="gone"
+            android:textColor="@color/gray"/>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btn_fab"
             android:layout_width="wrap_content"

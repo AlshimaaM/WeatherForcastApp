@@ -68,7 +68,6 @@ class HomeFragment :  Fragment()  {
     private lateinit var dayAdapter: DayAdapter
     val PERMISSION_ID = 42
     private lateinit var icon: String
-    private var loadLocal : MutableLiveData<Boolean> = MutableLiveData<Boolean>()
     private lateinit var workManager: WorkManager
     private lateinit var prefs: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
@@ -109,33 +108,12 @@ class HomeFragment :  Fragment()  {
             Setting.longitude = prefs.getString("lon"," ")!!
             setUpAlerts()
         }
-        if (Available(requireContext())) {
            viewWeather(Setting.latitude, Setting.longitude)
-        } else {
-            readFromDatabase()
-        }
+
         setUpAlerts()
         return binding.root
         }
 
-    fun Available(context: Context): Boolean {
-        var connected = false
-        var connected1 = false
-        var connected2 = false
-        val s = Context.CONNECTIVITY_SERVICE
-        val manager = context.getSystemService(s) as ConnectivityManager?
-        val info = manager?.activeNetworkInfo
-        if (info != null && info.isConnected) {
-            connected = info.type == ConnectivityManager.TYPE_WIFI
-            connected1 = info.type == ConnectivityManager.TYPE_MOBILE
-            if (connected || connected1) {
-                connected2 = true
-            }
-        } else {
-            connected2 = false
-        }
-        return connected2
-    }
 
     @SuppressLint("MissingPermission")
      fun getLastLocation() {
@@ -152,15 +130,7 @@ class HomeFragment :  Fragment()  {
                     }
                 }
             } else {
-
-              /*  Toast.makeText(requireContext(), "Turn on location", Toast.LENGTH_LONG).show()
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)*/
-                enableLocationSitting()
-
-               // readFromDatabase()
-               // Toast.makeText(requireContext(), "This is last data"+"/n Turn on your location to show current weather", Toast.LENGTH_LONG).show()
-
+                locationNotEnable()
             }
         } else {
            requestPermissions()
@@ -221,17 +191,9 @@ class HomeFragment :  Fragment()  {
         )
     }
 
-    override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<String>,
-            grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == PERMISSION_ID) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-            /*   var location = mFusedLocationClient(context)
-                Setting.latitude = String.format("%.6f", location?.latitude)
-                Setting.longitude = String.format("%.6f", location?.longitude)
-                viewWeather(Setting.latitude!!, Setting.longitude!!)*/
                 getLastLocation()
             }
         }
@@ -290,37 +252,42 @@ class HomeFragment :  Fragment()  {
                 alertList
         )
         return weatherDatabase
-    } fun readFromDatabase() {
+    }
+    fun readFromDatabase() {
         homeViewModel.getWeather(requireContext()).observe(viewLifecycleOwner, Observer {
-            it?.let {
-                var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-                if (sharedPreferences.getString("UNIT_SYSTEM", "") == "K") {
-                    binding.tempreture.text = it.tempture.toString() + "°K"
-                } else if (sharedPreferences.getString("UNIT_SYSTEM", "") == "C") {
-                    binding.tempreture.text = it.tempture.toString() + "°C"
-                } else {
-                    binding.tempreture.text = it.tempture.toString() + "°F"
-                }
-                binding.pressure.text = it.pressure.toString()
-                binding.dateHome.text = "${RetrofitInstance.dateNow}"
-                binding.tempreture.text = it.tempture.toString()
-                binding.humidity.text = it.humidity.toString() + "%"
-                binding.cloud.text = it.clouds.toString()
-                var city = it.city.split("/").toTypedArray()
-                binding.cityName.text = city[1]
-                binding.wind.text = it.wind_speed.toString()
-                binding.discription.text = it.descrption
-                binding.maxTep.text = it.dail_Weather[0].maxTemp.toString()
-                binding.minTep.text = it.dail_Weather[0].minTemp.toString()
-                var list: List<HoursEntity> = it.hour_Weather
-                var listDaily: List<DaysEntity> = it.dail_Weather
-                icon = it.icon
-                context?.let {
-                    Glide.with(it).load(getImage(icon)).into(binding.iconToday)
-                    hoursAdapter.setData(list, it)
-                    binding.hoursRecyclerview.adapter = hoursAdapter
-                    dayAdapter.fetchData(listDaily, it)
-                    binding.daysRecyclerview.adapter = dayAdapter
+            if (it==null){
+                firstTime()
+            }else {
+                it?.let {
+                    var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+                    if (sharedPreferences.getString("UNIT_SYSTEM", "") == "K") {
+                        binding.tempreture.text = it.tempture.toString() + "°K"
+                    } else if (sharedPreferences.getString("UNIT_SYSTEM", "") == "C") {
+                        binding.tempreture.text = it.tempture.toString() + "°C"
+                    } else {
+                        binding.tempreture.text = it.tempture.toString() + "°F"
+                    }
+                    binding.pressure.text = it.pressure.toString()
+                    binding.dateHome.text = "${RetrofitInstance.dateNow}"
+                    binding.tempreture.text = it.tempture.toString()
+                    binding.humidity.text = it.humidity.toString() + "%"
+                    binding.cloud.text = it.clouds.toString()
+                    var city = it.city.split("/").toTypedArray()
+                    binding.cityName.text = city[1]
+                    binding.wind.text = it.wind_speed.toString()
+                    binding.discription.text = it.descrption
+                    binding.maxTep.text = it.dail_Weather[0].maxTemp.toString()
+                    binding.minTep.text = it.dail_Weather[0].minTemp.toString()
+                    var list: List<HoursEntity> = it.hour_Weather
+                    var listDaily: List<DaysEntity> = it.dail_Weather
+                    icon = it.icon
+                    context?.let {
+                        Glide.with(it).load(getImage(icon)).into(binding.iconToday)
+                        hoursAdapter.setData(list, it)
+                        binding.hoursRecyclerview.adapter = hoursAdapter
+                        dayAdapter.fetchData(listDaily, it)
+                        binding.daysRecyclerview.adapter = dayAdapter
+                    }
                 }
             }
         })
@@ -426,22 +393,59 @@ class HomeFragment :  Fragment()  {
         }
         Setting.mapLocation = mapLocation!!
     }
-    private fun enableLocationSitting() {
+    private fun locationNotEnable() {
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
         alertDialogBuilder.setTitle("Location Not enable")
         alertDialogBuilder.setMessage("To load the current accurate temperature you have to enable location")
         alertDialogBuilder.setPositiveButton("Enable") { dialog, which ->
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            ActivityCompat.startActivityForResult(context as Activity, intent, HandlingLocation.LOCATION_PERMISSION_REQUEST_CODE,
-                    Bundle()
-            )
+            ActivityCompat.startActivityForResult(context as Activity, intent, HandlingLocation.LOCATION_PERMISSION_REQUEST_CODE, Bundle())
+            dialog.dismiss()
         }
         alertDialogBuilder.setNegativeButton("Load From Last Location Known") {dialog, which ->
-           // loadLocal.value=true
-            readFromDatabase()
+
+            Log.i("tag","readFromDatabase")
+            if (binding.tempreture.text ==null){
+                Log.i("tag","tempppppppppp"+binding.tempreture.toString())
+                firstTime()
+            }else{
+                readFromDatabase()
+                Log.i("tag","readFromDatabase")
+            }
+
+            dialog.dismiss()
         }
         alertDialogBuilder.show()
+        alertDialogBuilder.setCancelable(false)
     }
+    private fun firstTime() {
+        val alertDialogBuilder = AlertDialog.Builder(requireContext())
+        alertDialogBuilder.setTitle("There is No data")
+        alertDialogBuilder.setMessage("Because This is first time you should enable location to show data")
+        alertDialogBuilder.setPositiveButton("Enable") { dialog, which ->
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            ActivityCompat.startActivityForResult(context as Activity, intent, HandlingLocation.LOCATION_PERMISSION_REQUEST_CODE, Bundle())
+            dialog.dismiss()
+        }
+        alertDialogBuilder.show()
+        alertDialogBuilder.setCancelable(false)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode==PERMISSION_ID){
+            getLastLocation()
+        }
+    }
+
+/*
+    override fun onResume() {
+        super.onResume()
+        if (checkPermissions()){
+           // viewWeather(Setting.latitude,Setting.longitude)
+            getLastLocation()
+        }
+    }*/
     companion object {
         @JvmStatic
         fun newInstance() =

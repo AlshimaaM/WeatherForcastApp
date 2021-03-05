@@ -1,5 +1,6 @@
 package com.example.myapplication.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.location.Location
 import androidx.lifecycle.LiveData
@@ -16,11 +17,12 @@ class WeatherViewModel : ViewModel() {
     private var weatherRepositiry: WeatherRepositiry = WeatherRepositiry()
       var weatherMutableLiveData: MutableLiveData<Model> = MutableLiveData()
       var locationMutableLiveData: MutableLiveData<GeoModel> = MutableLiveData()
+
     fun fetchweather(lat: String, lng: String): MutableLiveData<Model> {
         weatherMutableLiveData = weatherRepositiry.getWeather(lat, lng)
         return weatherMutableLiveData
     }
-     fun weatherDatabase(weatherdatabase: WeatherEntity, context: Context) {
+    suspend fun weatherDatabase(weatherdatabase: WeatherEntity, context: Context) {
         weatherRepositiry.weatherDatabase(weatherdatabase, context)
     }
 

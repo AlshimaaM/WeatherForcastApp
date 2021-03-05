@@ -30,6 +30,7 @@ class AlertAdapter (val context: Context) : RecyclerView.Adapter<AlertAdapter.Vi
     }
     override fun onBindViewHolder(holder: AlertAdapter.ViewHolder, position: Int) {
         holder.time.text = alertList[position].start
+
     }
     /*
   SetUp Of Delete Item

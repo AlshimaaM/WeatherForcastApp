@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -33,12 +34,18 @@ class FavouritAdapter  : RecyclerView.Adapter<FavouritAdapter.ViewHolder>(){
         val textCity = itemView.findViewById(R.id.txt_city) as TextView
         val textTemp = itemView.findViewById(R.id.txt_temperature) as TextView
         val icon = itemView.findViewById(R.id.fav_icon) as ImageView
+        val card =itemView.findViewById<CardView>(R.id.card_fav)
 
         fun bind(data: FavouritEntity, context: Context) {
             textCity.text =data.city
            textTemp.text=data.temp.toString()
             context?.let {
                 Glide.with(it).load(RetrofitInstance.getImage(data.icon)).into(icon)
+            }
+            if(position%2==0){
+                card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.light_red));
+            }else {
+                card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.light_blue));
             }
         }
 

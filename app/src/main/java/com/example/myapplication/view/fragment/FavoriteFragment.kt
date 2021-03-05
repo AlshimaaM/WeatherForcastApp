@@ -47,8 +47,8 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         }
     }
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         binding= DataBindingUtil.inflate(inflater, R.layout.fragment_favorite, container, false)
         init( )
@@ -91,21 +91,27 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         favData =ArrayList()
         favAdapter = FavouritAdapter()
         favAdapter.setOnItemClickListener(this)
-        binding.btnFab.setOnClickListener( {
+        if (favAdapter.getItemCount()==0){
+            binding.emptyList.visibility=View.VISIBLE
+            binding.txtEmpty.visibility=View.VISIBLE
+        } else {
+            binding.emptyList.visibility=View.INVISIBLE
+            binding.txtEmpty.visibility=View.INVISIBLE
+        }
+        binding.btnFab.setOnClickListener({
             Navigation.findNavController(it).navigate(R.id.action_favoriteFragment_to_mapsFragment)
 
         })
     }
     fun viewWeatherFav(latitude: String, longitude: String) {
         weathetViewModel.fetchweather(latitude, longitude).observe(viewLifecycleOwner, Observer {
-            var favouritDatabase = dataInDatabase(it)
-            GlobalScope.launch {
-                Dispatchers.IO
-                viewModel.addFavoriteIntoDB(favouritDatabase, requireContext())
-                withContext(Dispatchers.Main) {
-                    dataFromDatabase()
+                var favouritDatabase = dataInDatabase(it)
+            CoroutineScope(Dispatchers.IO).launch  {
+                    viewModel.addFavoriteIntoDB(favouritDatabase, requireContext())
+                   withContext(Dispatchers.Main) {
+                        dataFromDatabase()
+                   }
                 }
-            }
         })
     }
 
@@ -113,38 +119,38 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         val hourlyWeather = arrayListOf<HoursEntity>()
         for (hourlyItem in model.hourly) {
             hourlyWeather.add(
-                    HoursEntity(
-                            hourlyItem.dt.toInt(),
-                            hourlyItem.temp,
-                            hourlyItem.weather[0].icon
-                    )
+                HoursEntity(
+                    hourlyItem.dt.toInt(),
+                    hourlyItem.temp,
+                    hourlyItem.weather[0].icon
+                )
             )
         }
         val dailyWeather = arrayListOf<DaysEntity>()
         for (dailyItem in model.daily) {
             dailyWeather.add(
-                    DaysEntity(
-                            dailyItem.dt,
-                            dailyItem.temp.min,
-                            dailyItem.temp.max,
-                            dailyItem.weather[0].icon,
-                            dailyItem.sunrise,
-                            dailyItem.weather[0].description
-                    )
+                DaysEntity(
+                    dailyItem.dt,
+                    dailyItem.temp.min,
+                    dailyItem.temp.max,
+                    dailyItem.weather[0].icon,
+                    dailyItem.sunrise,
+                    dailyItem.weather[0].description
+                )
             )
         }
         val database1 = FavouritEntity(
-                model.current.dt,
-                model.current.temp,
-                model.current.pressure,
-                model.current.humidity,
-                model.current.clouds,
-                model.current.wind_speed,
-                model.current.weather[0].icon,
-                model.current.weather[0].description,
-                model.timezone,
-                hourlyWeather,
-                dailyWeather
+            model.current.dt,
+            model.current.temp,
+            model.current.pressure,
+            model.current.humidity,
+            model.current.clouds,
+            model.current.wind_speed,
+            model.current.weather[0].icon,
+            model.current.weather[0].description,
+            model.timezone,
+            hourlyWeather,
+            dailyWeather
         )
         return database1
     }
@@ -160,31 +166,38 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
     }
     private fun deleteItemBySwabbing() {
         // Delete subject by swabbing item left and right
-        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(90, ItemTouchHelper.RIGHT) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            90,
+            ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
                 return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val trip: FavouritEntity = favAdapter.getItem(position)!!
-                openDialog(context, trip,viewHolder)
+                openDialog(context, trip, viewHolder)
             }
         })
         itemTouchHelper.attachToRecyclerView(binding.favRecycle)
     }
 
 
-    fun openDialog(context: Context?, trip: FavouritEntity?,viewHolder: RecyclerView.ViewHolder) {
+    fun openDialog(context: Context?, trip: FavouritEntity?, viewHolder: RecyclerView.ViewHolder) {
         val position = viewHolder.adapterPosition
 
         val builder1 = AlertDialog.Builder(context)
         builder1.setTitle("Are you sure delete trip " + trip?.city.toString() + " ? ")
         builder1.setCancelable(false)
         builder1.setPositiveButton("Ok") { dialog, which ->
-            CoroutineScope(  Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    viewModel.deleteFav(favAdapter.getItem(position)!! , requireContext())
+                    viewModel.deleteFav(favAdapter.getItem(position)!!, requireContext())
                 } catch (e: Exception) {
                     Log.i("Remove", "onBindViewHolder: a" + e.message)
                 }
@@ -193,7 +206,7 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         }
         builder1.setNegativeButton("CANCEL") { dialog, which ->
             if (context != null) {
-                favAdapter.setData(favData,context)
+                favAdapter.setData(favData, context)
             }
             dialog.dismiss()
         }
