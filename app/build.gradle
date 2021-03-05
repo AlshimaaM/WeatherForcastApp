@@ -6,7 +6,7 @@ plugins {
 apply plugin: 'kotlin-kapt'
 ext{
     room_version = '2.2.6'
-   // lifecycleVersion = '2.2.0'
+   lifecycleVersion = '2.2.0'
     work_version = '2.5.0'
     lottieVersion ='3.4.0'
 }
@@ -38,8 +38,9 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    dataBinding{
-        enabled=true
+    buildFeatures {
+        dataBinding = true
+        viewBinding true
     }
 }
 
@@ -52,9 +53,9 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.navigation:navigation-fragment:2.3.3'
     implementation 'androidx.navigation:navigation-ui:2.3.3'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -65,7 +66,7 @@ dependencies {
      //preference
     implementation "androidx.preference:preference:1.1.1"
     //loation
-    implementation 'com.google.maps.android:maps-utils-ktx:2.2.0'
+    implementation "com.google.maps.android:maps-utils-ktx:$lifecycleVersion"
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.1.0'
     //glide

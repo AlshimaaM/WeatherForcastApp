@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.multidex.MultiDex
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -31,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         ))
         navView.setupWithNavController(navController)
     }
+/*
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -38,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         val fragment = supportFragmentManager.findFragmentById(R.id.navigation_home)
         fragment!!.onActivityResult(requestCode, resultCode, data)
     }
+*/
 
 
 }

@@ -26,12 +26,11 @@ import com.example.myapplication.data.remote.RetrofitInstance.formateTime
 import com.example.myapplication.databinding.FragmentAlertsBinding
 import com.example.myapplication.databinding.FragmentHomeBinding
 import com.example.myapplication.model.AlertsItem
+import com.example.myapplication.model.Model
 import com.example.myapplication.provider.Setting
 import com.example.myapplication.viewmodel.AlertsViewModel
 import com.example.myapplication.viewmodel.WeatherViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -51,7 +50,8 @@ class AlertsFragment : Fragment() {
     private lateinit var alertList: List<AlertsItem>
     private var notificationOrAlarm = "notification"
     lateinit var prefs: SharedPreferences
-
+    val job = Job()
+    val uiScope = CoroutineScope(Dispatchers.IO + job)
     private fun loadSettings() {
         val unit_system = sharedPreferences.getString("UNIT_SYSTEM", "")
         val language_system = sharedPreferences.getString("LANGUAGE_SYSTEM", "")
@@ -124,13 +124,6 @@ class AlertsFragment : Fragment() {
                 }
             })
         init()
-        //loadSettings()
-
-//        viewModel.setPlace(location = Settings.customLocations).observe(viewLifecycleOwner,
-//            androidx.lifecycle.Observer {
-//                viewModel.fetchweather(it.lat.toString(),it.lon.toString())
-               // viewModel.fetchweather(Settings.mapLatitude,Settings.mapLongitude)
-          //  })
         viewModel.getWeather(requireContext()).observe(viewLifecycleOwner,{
             it?.let {
                 if (it.alerts_Weather.size > 0) {
@@ -140,16 +133,17 @@ class AlertsFragment : Fragment() {
         })
         getAlertFromDB()
         binding.btnAdd.setOnClickListener {
-            binding.alertTime.text = " "
-            binding.alertDate.text = " "
+            Log.i("tag","sizeOfAlert")
+            binding.alertTime.text
+            binding.alertDate.text
             if (myHour != null && myMin != null && myDay != null && myMon != null && myYear != null) {
                 val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm")
 
                 val date: String =
                     myDay.toString() + "-" + myMon + "-" + myYear + " " + myHour + ":" + myMin
                 val dateLong = sdf.parse(date)!!.time
-                Log.v("datelong", dateLong.toString())
                 if (alertList.size > 0) {
+                    Log.i("tag","sizeOfAlert1111")
                     for (alertItem in alertList) {
                         if (dateLong / 1000 > alertItem.start && dateLong / 1000 < alertItem.end) {
                             if (notificationOrAlarm.equals("notification")) {
@@ -162,48 +156,49 @@ class AlertsFragment : Fragment() {
                                     alertItem.event,
                                     "From ${formateTime(alertItem.start)} to ${formateTime(alertItem.end)}"
                                 )
-                                Log.v("gg", "ggggg")
-
                             } else {
                                 setAlaram(
                                     alertItem.event,
-                                    alertItem.description, myHour!!,
+                                    alertItem.description,
+                                    myHour!!,
                                     myMin!!,
                                     myDay!!,
                                     myMon!!,
                                     myYear!!
                                 )
-                                Log.v("gg", "gggg2g")
                             }
                             break
-
                         }
                     }
                 }else{
+                    Log.i("tag","sizeOfAlert222")
                     if (notificationOrAlarm.equals("notification")) {
+                        Log.i("tag","sizeOfAlert222")
                         setNotification(
                             myHour!!,
                             myMin!!,
                             myDay!!,
                             myMon!!,
                             myYear!!,
-                            "Nothing",
-                            "No Dangerous Alert"
+                          //  alertList[0].event,
+                            //alertList[0].description
+                        "NOOOOOOOOOO",
+                            "NOOOOOOOOOO"
                         )
-                        Log.v("gg","1")
                     } else {
                         setAlaram(
-                            "Nothing",
-                            "No Dangerous Alert", myHour!!,
+                            "NOOOOOOOOOO",
+                            "NOOOOOOOOOO",
+                            myHour!!,
                             myMin!!,
                             myDay!!,
                             myMon!!,
                             myYear!!
                         )
-                        Log.v("gg","2")
                     }
                 }
-            } else {
+            }else {
+                Log.i("tag","sizeOfAlert444")
                 Toast.makeText(requireActivity(), "Please Enter Data", Toast.LENGTH_LONG).show()
             }
         }
@@ -244,12 +239,13 @@ class AlertsFragment : Fragment() {
     private fun getAlertFromDB() {
         alertViewModel.getAlert(requireContext()).observe(viewLifecycleOwner,  {
             it?.let {
+                Log.i("tag","dataaaaasizeOfAlertAdapter")
                 alertAdapter.fetchData(it, requireContext())
+                Log.i("tag","sizeOfAlertAdapter")
                 binding.alertRV.adapter = alertAdapter
+                Log.i("tag","sizeOfAlertAdapter")
             }
-
         })
-
     }
 
     private fun addAlert(
@@ -260,20 +256,15 @@ class AlertsFragment : Fragment() {
         status: Boolean
     ) {
         val alert = AlertEntity(requestCode, event, start, description, status)
-        GlobalScope.launch {
-            Dispatchers.IO
+        uiScope.launch {
             alertViewModel.addAlert(alert,requireContext())
         }
 
 
     }
     private fun setAlaram(
-        event: String,
-        desc: String, hour: Int,
-        min: Int,
-        day: Int,
-        month: Int,
-        year: Int
+        event: String, desc: String, hour: Int,
+        min: Int, day: Int, month: Int, year: Int
     ) {
         val intentA = Intent(context, DialogReceiver::class.java)
         intentA.putExtra("event", event)
@@ -374,7 +365,6 @@ class AlertsFragment : Fragment() {
             }
         }
 
-    // delete favorite item
     fun deleteFavoriteItemFromDB(alertDB: AlertEntity) {
         alertViewModel.deleteAlert(alertDB,requireContext())
     }
@@ -384,5 +374,9 @@ class AlertsFragment : Fragment() {
         val sender = PendingIntent.getBroadcast(context, requestCode, intent, 0)
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(sender)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
     }

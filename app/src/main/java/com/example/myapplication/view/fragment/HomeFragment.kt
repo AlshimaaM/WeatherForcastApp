@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -53,14 +54,11 @@ import com.example.myapplication.viewmodel.WeatherViewModel
 import com.google.android.gms.location.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 
-class HomeFragment :  Fragment()  {
+class HomeFragment :  Fragment() {
     lateinit var sharedPreferences: SharedPreferences
     private lateinit var binding: FragmentHomeBinding
     private lateinit var homeViewModel: WeatherViewModel
@@ -73,6 +71,8 @@ class HomeFragment :  Fragment()  {
     private lateinit var editor: SharedPreferences.Editor
     private val CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084
     lateinit var mFusedLocationClient: FusedLocationProviderClient
+    val job = Job()
+    val uiScope = CoroutineScope(Dispatchers.IO + job)
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -80,25 +80,8 @@ class HomeFragment :  Fragment()  {
             savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
-        binding.hoursRecyclerview.layoutManager =
-            LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-        binding.daysRecyclerview.layoutManager =
-            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        hoursAdapter = HoursAdapter()
-        dayAdapter = DayAdapter()
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        homeViewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
-        workManager = WorkManager.getInstance(requireContext())
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(
-                requireContext()
-            )
-        ) {
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:" + requireActivity().getPackageName())
-            )
-            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION)
-        }
+        init()
         settings()
         if (sharedPreferences.getBoolean("USE_DEVICE_LOCATION", true)) {
             getLastLocation()
@@ -114,6 +97,28 @@ class HomeFragment :  Fragment()  {
         return binding.root
         }
 
+   fun init(){
+       binding.hoursRecyclerview.layoutManager =
+               LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+       binding.daysRecyclerview.layoutManager =
+               LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+       hoursAdapter = HoursAdapter()
+       dayAdapter = DayAdapter()
+
+       mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+       homeViewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
+       workManager = WorkManager.getInstance(requireContext())
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(
+                       requireContext()
+               )
+       ) {
+           val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                   Uri.parse("package:" + requireActivity().getPackageName())
+           )
+           startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION)
+       }
+
+   }
 
     @SuppressLint("MissingPermission")
      fun getLastLocation() {
@@ -198,105 +203,50 @@ class HomeFragment :  Fragment()  {
             }
         }
     }
-    fun writeIntoDatabase(model: Model): WeatherEntity {
-        val hoursListDB = arrayListOf<HoursEntity>()
-        for (hourItem in model.hourly) {
-            hoursListDB.add(
-                    HoursEntity(
-                            hourItem.dt.toInt(),
-                            hourItem.temp,
-                            hourItem.weather[0].icon
-                    )
-            )
-        }
-        val daysListDB = arrayListOf<DaysEntity>()
-        for (dayItem in model.daily) {
-            daysListDB.add(
-                    DaysEntity(
-                            dayItem.dt,
-                            dayItem.temp.min,
-                            dayItem.temp.max,
-                            dayItem.weather[0].icon,
-                            dayItem.sunrise,
-                            dayItem.weather[0].description
-                    )
-            )
-        }
-        val alertList = arrayListOf<AlertsItem>()
-        if (model.alerts != null) {
-            for (alertItem in model.alerts) {
-                alertList.add(
-                    AlertsItem(
-                        alertItem.senderName,
-                        alertItem.start,
-                        alertItem.description,
-                        alertItem.end,
-                        alertItem.event
-                  )
-                )
-            }
-        }
-        val weatherDatabase = WeatherEntity(
-                0,
-                model.current.dt,
-                model.current.temp,
-                model.current.pressure,
-                model.current.humidity,
-                model.current.clouds,
-                model.current.wind_speed,
-                model.current.weather[0].icon,
-                model.current.weather[0].description,
-                model.timezone,
-                hoursListDB,
-                daysListDB,
-                alertList
-        )
-        return weatherDatabase
-    }
     fun readFromDatabase() {
         homeViewModel.getWeather(requireContext()).observe(viewLifecycleOwner, Observer {
-            if (it==null){
+           /*   if (it==null){
                 firstTime()
-            }else {
-                it?.let {
-                    var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-                    if (sharedPreferences.getString("UNIT_SYSTEM", "") == "K") {
-                        binding.tempreture.text = it.tempture.toString() + "°K"
-                    } else if (sharedPreferences.getString("UNIT_SYSTEM", "") == "C") {
-                        binding.tempreture.text = it.tempture.toString() + "°C"
-                    } else {
-                        binding.tempreture.text = it.tempture.toString() + "°F"
-                    }
-                    binding.pressure.text = it.pressure.toString()
-                    binding.dateHome.text = "${RetrofitInstance.dateNow}"
-                    binding.tempreture.text = it.tempture.toString()
-                    binding.humidity.text = it.humidity.toString() + "%"
-                    binding.cloud.text = it.clouds.toString()
-                    var city = it.city.split("/").toTypedArray()
-                    binding.cityName.text = city[1]
-                    binding.wind.text = it.wind_speed.toString()
-                    binding.discription.text = it.descrption
-                    binding.maxTep.text = it.dail_Weather[0].maxTemp.toString()
-                    binding.minTep.text = it.dail_Weather[0].minTemp.toString()
-                    var list: List<HoursEntity> = it.hour_Weather
-                    var listDaily: List<DaysEntity> = it.dail_Weather
-                    icon = it.icon
-                    context?.let {
-                        Glide.with(it).load(getImage(icon)).into(binding.iconToday)
-                        hoursAdapter.setData(list, it)
-                        binding.hoursRecyclerview.adapter = hoursAdapter
-                        dayAdapter.fetchData(listDaily, it)
-                        binding.daysRecyclerview.adapter = dayAdapter
-                    }
+            }else {*/
+            it?.let {
+                var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+                if (sharedPreferences.getString("UNIT_SYSTEM", "") == "K") {
+                    binding.tempreture.text = it.tempture.toString() + "°K"
+                } else if (sharedPreferences.getString("UNIT_SYSTEM", "") == "C") {
+                    binding.tempreture.text = it.tempture.toString() + "°C"
+                } else {
+                    binding.tempreture.text = it.tempture.toString() + "°F"
+                }
+                binding.pressure.text = it.pressure.toString()
+                binding.dateHome.text = "${RetrofitInstance.dateNow}"
+                binding.tempreture.text = it.tempture.toString()
+                binding.humidity.text = it.humidity.toString() + "%"
+                binding.cloud.text = it.clouds.toString()
+                var city = it.city.split("/").toTypedArray()
+                binding.cityName.text = city[1]
+                binding.wind.text = it.wind_speed.toString()
+                binding.discription.text = it.descrption
+                binding.maxTep.text = it.dail_Weather[0].maxTemp.toString()
+                binding.minTep.text = it.dail_Weather[0].minTemp.toString()
+                var list: List<HoursEntity> = it.hour_Weather
+                var listDaily: List<DaysEntity> = it.dail_Weather
+                icon = it.icon
+                context?.let {
+                    Glide.with(it).load(getImage(icon)).into(binding.iconToday)
+                    hoursAdapter.setData(list, it)
+                    binding.hoursRecyclerview.adapter = hoursAdapter
+                    dayAdapter.fetchData(listDaily, it)
+                    binding.daysRecyclerview.adapter = dayAdapter
                 }
             }
+     //   }
         })
     }
 
     fun viewWeather(latitude: String, longitude: String) {
         homeViewModel.fetchweather(latitude, longitude).observe(viewLifecycleOwner, Observer {
-            var weatherDatabase = writeIntoDatabase(it)
-            CoroutineScope(Dispatchers.IO).launch {
+            var weatherDatabase =homeViewModel.writeIntoDatabase(it)
+            uiScope.launch {
                 homeViewModel.weatherDatabase(weatherDatabase, requireContext())
                 withContext(Dispatchers.Main) {
                     readFromDatabase()
@@ -399,24 +349,15 @@ class HomeFragment :  Fragment()  {
         alertDialogBuilder.setMessage("To load the current accurate temperature you have to enable location")
         alertDialogBuilder.setPositiveButton("Enable") { dialog, which ->
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            ActivityCompat.startActivityForResult(context as Activity, intent, HandlingLocation.LOCATION_PERMISSION_REQUEST_CODE, Bundle())
+            ActivityCompat.startActivityForResult(requireActivity(), intent, PERMISSION_ID, Bundle())
             dialog.dismiss()
         }
         alertDialogBuilder.setNegativeButton("Load From Last Location Known") {dialog, which ->
-
-            Log.i("tag","readFromDatabase")
-            if (binding.tempreture.text ==null){
-                Log.i("tag","tempppppppppp"+binding.tempreture.toString())
-                firstTime()
-            }else{
                 readFromDatabase()
-                Log.i("tag","readFromDatabase")
-            }
-
             dialog.dismiss()
         }
-        alertDialogBuilder.show()
         alertDialogBuilder.setCancelable(false)
+        alertDialogBuilder.show()
     }
     private fun firstTime() {
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
@@ -424,28 +365,30 @@ class HomeFragment :  Fragment()  {
         alertDialogBuilder.setMessage("Because This is first time you should enable location to show data")
         alertDialogBuilder.setPositiveButton("Enable") { dialog, which ->
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            ActivityCompat.startActivityForResult(context as Activity, intent, HandlingLocation.LOCATION_PERMISSION_REQUEST_CODE, Bundle())
+            ActivityCompat.startActivityForResult(context as Activity, intent, PERMISSION_ID, Bundle())
             dialog.dismiss()
         }
-        alertDialogBuilder.show()
         alertDialogBuilder.setCancelable(false)
+        alertDialogBuilder.show()
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+ /*   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode==PERMISSION_ID){
             getLastLocation()
         }
     }
 
-/*
     override fun onResume() {
         super.onResume()
         if (checkPermissions()){
-           // viewWeather(Setting.latitude,Setting.longitude)
+          //  viewWeather(Setting.latitude,Setting.longitude)
             getLastLocation()
         }
     }*/
+ override fun onDestroy() {
+     super.onDestroy()
+     job.cancel()
+ }
     companion object {
         @JvmStatic
         fun newInstance() =

@@ -37,6 +37,7 @@ abstract class WeatherDatabaseInstance : RoomDatabase() {
                        "weather_database"
                    )
                        .fallbackToDestructiveMigration()
+                //        .allowMainThreadQueries()
                        .build()
                    INSTANCE = instance
                }

@@ -1,6 +1,5 @@
 package com.example.myapplication.data.remote
 
-import com.app.weatherapp.mvvm.data.remote.PlaceReponseOneApi.GeoModel
 import com.example.myapplication.model.Model
 import com.example.myapplication.util.Constant
 import retrofit2.Call
@@ -18,17 +17,7 @@ object RetrofitInstance {
         return retrofit
     }
 
-    fun getInstanceGeo(): Retrofit {
-        retrofit = Retrofit.Builder().baseUrl(Constant.GEO_URL)
-            .addConverterFactory(GsonConverterFactory.create()).build()
-        return retrofit
-    }
-
     fun getWeatherAPI(): WeatherAPI {
-        return getInstance().create(WeatherAPI::class.java)
-    }
-
-    fun getGeoAPI(): WeatherAPI {
         return getInstance().create(WeatherAPI::class.java)
     }
 
@@ -36,8 +25,7 @@ object RetrofitInstance {
         latitude: String,
         longitude: String,
         languageCode: String,
-        units: String
-    ): Call<Model> {
+        units: String): Call<Model> {
         return getWeatherAPI()
             .getWeather(
                 lat = latitude,
@@ -47,10 +35,6 @@ object RetrofitInstance {
                 units = units,
                 appid = Constant.API_KEY
             )
-    }
-
-    fun getSearchLocation(location: String): Call<List<GeoModel>> {
-        return getGeoAPI().getPlaceData(citName = location, key = Constant.API_KEY)
     }
 
     fun getImage(icon: String): String {

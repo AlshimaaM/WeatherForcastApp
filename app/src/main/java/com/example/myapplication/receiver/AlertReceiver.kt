@@ -9,10 +9,8 @@ import com.example.myapplication.provider.NotificationHelper
 class AlertReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
-        val notificationHelper =
-            NotificationHelper(context,intent)
-        val nb: NotificationCompat.Builder =
-            notificationHelper.channelNotification
+        val notificationHelper = NotificationHelper(context,intent)
+        val nb: NotificationCompat.Builder = notificationHelper.channelNotification
         notificationHelper.manager?.notify(1, nb.build())
 
     }

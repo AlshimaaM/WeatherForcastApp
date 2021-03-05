@@ -19,10 +19,7 @@ import com.example.myapplication.data.remote.RetrofitInstance.formateTime
 import com.example.myapplication.model.AlertsItem
 import com.example.myapplication.model.Model
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -66,25 +63,18 @@ class AlertWork(context: Context, workerParams: WorkerParameters) :
 
     @SuppressLint("SimpleDateFormat")
     fun setAlarm(alerts: List<AlertsItem>) {
-        Log.v("alertTest", alerts.size.toString() + " hello")
         val sdf = java.text.SimpleDateFormat("EEE, h:mm a")
         if (alerts.size > 0) {
-            Log.v("wm", "2")
             for (alertItem in alerts) {
-                Log.v("alertTest", "3")
                 val now = System.currentTimeMillis()
                 if (alertItem.start > now / 1000) {
-                    Log.v("event", alertItem.event)
                     setNotification(
                         alertItem.start,
                         alertItem.event,
                         "From ${formateTime(alertItem.start)} " +
                                 "to ${formateTime(alertItem.end)}"
                     )
-                    Log.v("alertTest", "set alarm")
                 } else if (alertItem.end > now / 1000) {
-                    Log.v("alertTest", "set alarm")
-                    Log.v("time", ((alertItem.start + alertItem.end) / 2).toString())
                     setNotification(
                         alertItem.end,
                         alertItem.event,
@@ -100,44 +90,26 @@ class AlertWork(context: Context, workerParams: WorkerParameters) :
             editor.commit()
             editor.apply()
         }else{
-            Log.v("alertTest", "no set alarm")
+            Log.i("alertTest", "no set alarm")
 
         }
     }
-
     fun fetchWeather(): MutableLiveData<Model> {
-
-        Log.v("alertTest",lat!!)
-        Log.v("alertTest",lon!!)
-        Log.v("alertTest",units!!)
-        Log.v("alertTest",lang!!)
-       GlobalScope.launch {
-            Dispatchers.IO
-
+       CoroutineScope(Dispatchers.IO).launch {
             try {
-                //"68.3963", "36.9419"
                 val response = RetrofitInstance
                     .getCurrentLocationweather(
-                        lat!!, lon!!,
-                        units!!,
-                        lang!!
-                    ).execute()
+                        lat!!, lon!!, units!!, lang!!).execute()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         weatherMutableLiveDataApi.value = response.body()
-                        Log.v("apiData",weatherMutableLiveDataApi.value.toString())
                         response.body()!!.alerts?.let {
                             setAlarm(it)
-
-                            Log.v("alertTest", alerts.toString() + "hello")
-
                         }
                         setAlarm(ArrayList<AlertsItem>())
                     }
                 }
-
             } catch (e: Exception) {
-                Log.i("testError11", " " + e.message)
             }
         }
         return weatherMutableLiveDataApi
@@ -155,10 +127,8 @@ class AlertWork(context: Context, workerParams: WorkerParameters) :
         val pendingIntent = PendingIntent.getBroadcast(mCtx, i1, intent, 0)
         requestCodeList.add(i1)
         val alertTime: Long = startTime.toLong()
-        Log.v("alertTime", alertTime.toString())
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, alertTime, pendingIntent)
-        // Toast.makeText(mCtx, R.string.set_alarm, Toast.LENGTH_LONG).show()
         mCtx.registerReceiver(AlertReceiver(), IntentFilter())
     }
 }

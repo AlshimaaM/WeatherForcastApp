@@ -53,13 +53,10 @@ class DialogActivity : AppCompatActivity() {
             dialog.dismiss()
             finish()
         }
-
-
             txtEvent.visibility = View.VISIBLE
             txtDesc.visibility = View.VISIBLE
             txtEvent.text = event
             txtDesc.text = desc
-
 
         dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

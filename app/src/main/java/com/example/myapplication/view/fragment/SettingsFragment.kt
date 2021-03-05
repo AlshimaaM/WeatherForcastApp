@@ -6,13 +6,12 @@ import android.os.Bundle
 import androidx.navigation.findNavController
 import androidx.preference.*
 import com.example.myapplication.R
-import com.example.myapplication.data.remote.WeatherAPI
 import com.example.myapplication.provider.Setting
 import com.example.myapplication.util.ContextUtils.Companion.setLocal
 import com.example.myapplication.view.activity.MainActivity
 
 class SettingsFragment : PreferenceFragmentCompat(){
-    lateinit var units:String
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.perferences, rootKey)
         preferenceManager.findPreference<Preference>("LANGUAGE_SYSTEM")!!
@@ -50,15 +49,15 @@ class SettingsFragment : PreferenceFragmentCompat(){
         }
         val un = sp.getString("UNIT_SYSTEM", "K")
         if ("K".equals(un)) {
-            units="standard"
+            Setting.unitSystem="standard"
             uni?.setSummary(uni?.getEntry())
 
         }else if("C".equals(uni)){
-            units="imperial"
+            Setting.unitSystem="imperial"
             uni?.setSummary(uni?.getEntry())
         }
         else {
-            units="metric"
+            Setting.unitSystem="metric"
             uni?.setSummary(uni?.getEntry())
         }
         uni!!.setOnPreferenceChangeListener(androidx.preference.Preference.OnPreferenceChangeListener { prefs, obj ->

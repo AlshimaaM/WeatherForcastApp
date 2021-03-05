@@ -1,11 +1,8 @@
 package com.example.myapplication.data.repositry
 
-import android.app.Application
 import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.app.weatherapp.mvvm.data.remote.PlaceReponseOneApi.GeoModel
 import com.example.myapplication.data.local.database.WeatherDatabaseInstance
 import com.example.myapplication.data.local.database.entity.AlertEntity
 import com.example.myapplication.data.local.database.entity.FavouritEntity
@@ -13,15 +10,11 @@ import com.example.myapplication.data.local.database.entity.WeatherEntity
 import com.example.myapplication.data.remote.RetrofitInstance
 import com.example.myapplication.model.Model
 import com.example.myapplication.provider.Setting
-import com.example.myapplication.util.ContextUtils.Companion.offlineToast
-import com.example.myapplication.view.activity.MainActivity
 import kotlinx.coroutines.*
 import java.lang.Exception
-import kotlin.coroutines.CoroutineContext
 
 class WeatherRepositiry {
     private  var weatherMutableLiveData: MutableLiveData<Model> = MutableLiveData()
-    private  var locationMutableLiveData: MutableLiveData<GeoModel> = MutableLiveData()
 
     fun getWeather(latitude: String, longitude: String): MutableLiveData<Model> {
         CoroutineScope(Dispatchers.IO).launch {
@@ -46,26 +39,13 @@ class WeatherRepositiry {
         return weatherMutableLiveData
     }
 
-    fun getPlace(location: String): MutableLiveData<GeoModel> {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-            val response = RetrofitInstance.getSearchLocation(location = location).execute()
-            withContext(Dispatchers.Main) {
-                if (response.isSuccessful) {
-                    locationMutableLiveData.value = response.body()!!.get(0)
-                }
-            }
-        } catch (e: Exception) {
-        }}
-
-        return locationMutableLiveData
-    }
-
     suspend  fun weatherDatabase(wDB: WeatherEntity, context: Context) {
         val database = WeatherDatabaseInstance.getInstance(context)
-          database.weatherDao().insertCurrentWeather(wDB)
-
+        CoroutineScope(Dispatchers.IO).launch {
+            database.weatherDao().insertCurrentWeather(wDB)
+        }
     }
+
     fun getWeatherDatabase(context: Context): LiveData<WeatherEntity> {
         val database = WeatherDatabaseInstance.getInstance(context)
         return database.weatherDao().getCurrentWeather()
@@ -73,22 +53,26 @@ class WeatherRepositiry {
 
     suspend  fun favoriteIntoDatabase(fDatabase: FavouritEntity, context: Context) {
         val database = WeatherDatabaseInstance.getInstance(context)
+        CoroutineScope(Dispatchers.IO).launch {
             database.favouritDao().insertFavWeather(fDatabase)
+        }
     }
 
     fun favoriteFromDatabase(context: Context): LiveData<List<FavouritEntity>> {
         val database = WeatherDatabaseInstance.getInstance(context)
         return database.favouritDao().getFavWeather()
     }
-    fun deletFavorite(fDatabase: FavouritEntity, context: Context) {
-        val database = WeatherDatabaseInstance.getInstance(context).favouritDao().deleteFavWeather(fDatabase)
 
+    fun deletFavorite(fDatabase: FavouritEntity, context: Context) {
+        val database = WeatherDatabaseInstance.getInstance(context)
+        CoroutineScope(Dispatchers.IO).launch {
+            database.favouritDao().deleteFavWeather(fDatabase)
+        }
     }
 
     suspend fun addAlert(alertDatabase: AlertEntity, context: Context) {
         val database = WeatherDatabaseInstance.getInstance(context)
-        GlobalScope.launch {
-            Dispatchers.IO
+        CoroutineScope(Dispatchers.IO).launch {
             database.alertDao().insertAlert(alertDatabase)
         }
     }
@@ -100,8 +84,7 @@ class WeatherRepositiry {
 
     fun deleteAlert(alertDatabase: AlertEntity,context: Context) {
         val database = WeatherDatabaseInstance.getInstance(context)
-        GlobalScope.launch {
-            Dispatchers.IO
+        CoroutineScope(Dispatchers.IO).launch  {
             database.alertDao().deleteAlert(alertDatabase)
         }
     }

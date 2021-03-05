@@ -20,11 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.adapter.FavouritAdapter
-import com.example.myapplication.data.local.database.entity.DaysEntity
 import com.example.myapplication.data.local.database.entity.FavouritEntity
-import com.example.myapplication.data.local.database.entity.HoursEntity
 import com.example.myapplication.databinding.FragmentFavoriteBinding
-import com.example.myapplication.model.Model
 import com.example.myapplication.viewmodel.FavoriteViewModel
 import com.example.myapplication.viewmodel.WeatherViewModel
 import com.google.android.gms.maps.model.LatLng
@@ -39,6 +36,8 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
     private lateinit var favData:List<FavouritEntity>
     private lateinit var weathetViewModel: WeatherViewModel
     private lateinit var viewModel: FavoriteViewModel
+    val job = Job()
+    val uiScope = CoroutineScope(Dispatchers.IO + job)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,16 +86,20 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
     private fun init() {
         weathetViewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
         viewModel = ViewModelProvider(this).get(FavoriteViewModel::class.java)
-        binding.favRecycle.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        binding.favRecycle.layoutManager = LinearLayoutManager(
+            context,
+            RecyclerView.VERTICAL,
+            false
+        )
         favData =ArrayList()
         favAdapter = FavouritAdapter()
         favAdapter.setOnItemClickListener(this)
-        if (favAdapter.getItemCount()==0){
+        if (favAdapter.getItemCount()>0){
+            binding.emptyList.visibility=View.GONE
+            binding.txtEmpty.visibility=View.GONE
+        } else {
             binding.emptyList.visibility=View.VISIBLE
             binding.txtEmpty.visibility=View.VISIBLE
-        } else {
-            binding.emptyList.visibility=View.INVISIBLE
-            binding.txtEmpty.visibility=View.INVISIBLE
         }
         binding.btnFab.setOnClickListener({
             Navigation.findNavController(it).navigate(R.id.action_favoriteFragment_to_mapsFragment)
@@ -105,55 +108,16 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
     }
     fun viewWeatherFav(latitude: String, longitude: String) {
         weathetViewModel.fetchweather(latitude, longitude).observe(viewLifecycleOwner, Observer {
-                var favouritDatabase = dataInDatabase(it)
-            CoroutineScope(Dispatchers.IO).launch  {
-                    viewModel.addFavoriteIntoDB(favouritDatabase, requireContext())
-                   withContext(Dispatchers.Main) {
-                        dataFromDatabase()
-                   }
+            var favouritDatabase = viewModel.dataInDatabase(it)
+            uiScope.launch {
+                viewModel.addFavoriteIntoDB(favouritDatabase, requireContext())
+                withContext(Dispatchers.Main) {
+                    dataFromDatabase()
                 }
+            }
         })
     }
 
-    fun dataInDatabase(model: Model): FavouritEntity {
-        val hourlyWeather = arrayListOf<HoursEntity>()
-        for (hourlyItem in model.hourly) {
-            hourlyWeather.add(
-                HoursEntity(
-                    hourlyItem.dt.toInt(),
-                    hourlyItem.temp,
-                    hourlyItem.weather[0].icon
-                )
-            )
-        }
-        val dailyWeather = arrayListOf<DaysEntity>()
-        for (dailyItem in model.daily) {
-            dailyWeather.add(
-                DaysEntity(
-                    dailyItem.dt,
-                    dailyItem.temp.min,
-                    dailyItem.temp.max,
-                    dailyItem.weather[0].icon,
-                    dailyItem.sunrise,
-                    dailyItem.weather[0].description
-                )
-            )
-        }
-        val database1 = FavouritEntity(
-            model.current.dt,
-            model.current.temp,
-            model.current.pressure,
-            model.current.humidity,
-            model.current.clouds,
-            model.current.wind_speed,
-            model.current.weather[0].icon,
-            model.current.weather[0].description,
-            model.timezone,
-            hourlyWeather,
-            dailyWeather
-        )
-        return database1
-    }
     fun dataFromDatabase() {
         viewModel.getFavoriteFromDB(requireContext()).observe(viewLifecycleOwner, Observer {
             it?.let {
@@ -217,5 +181,9 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
     override fun onClick(position: Int) {
         val favoriteItem = bundleOf("favoriteItem" to favData.get(position))
         findNavController().navigate(R.id.action_favouritFragment_to_detailsFragment, favoriteItem)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 }
