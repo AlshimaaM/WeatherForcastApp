@@ -35,7 +35,7 @@
     <PreferenceCategory app:title="@string/units"
         app:icon="@drawable/ic_unit">
         <ListPreference
-            app:defaultValue="K"
+            app:defaultValue="metric"
             app:entries="@array/unitSystemEntries"
             app:entryValues="@array/unitSystemValues"
             app:key="UNIT_SYSTEM"
@@ -49,10 +49,10 @@
     <PreferenceCategory app:title="@string/language"
         app:icon="@drawable/ic_language">
         <ListPreference
-            app:defaultValue="En"
             app:entries="@array/langSystemEntries"
             app:entryValues="@array/langSystemValues"
             app:key="LANGUAGE_SYSTEM"
+            app:defaultValue="ar"
             app:title="@string/lang_system"
             app:summary="@string/land_support"/>
     </PreferenceCategory>

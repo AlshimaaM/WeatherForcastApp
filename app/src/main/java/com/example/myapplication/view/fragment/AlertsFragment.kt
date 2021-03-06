@@ -52,45 +52,10 @@ class AlertsFragment : Fragment() {
     lateinit var prefs: SharedPreferences
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.IO + job)
-    private fun loadSettings() {
-        val unit_system = sharedPreferences.getString("UNIT_SYSTEM", "")
-        val language_system = sharedPreferences.getString("LANGUAGE_SYSTEM", "")
-        val device_Location = sharedPreferences.getBoolean("USE_DEVICE_LOCATION", false)
-        val notifications = sharedPreferences.getBoolean("USE_NOTIFICATIONS_ALERT", false)
-        val custom_Locations = sharedPreferences.getString("CUSTOM_LOCATION", "")
-        val wind_speed = sharedPreferences.getString("WIND_SPEED", "")
-        val mapLocation = sharedPreferences.getBoolean("MAP_LOCATION", false)
-
-
-        if (unit_system != null) {
-            Setting.unitSystem = unit_system
-        }
-        if (language_system != null) {
-            Setting.languageSystem = language_system
-        }
-
-        if (device_Location != null) {
-            Setting.deviceLocation = device_Location
-        }
-
-        if (notifications != null) {
-            Setting.notifications = notifications
-        }
-
-        if (custom_Locations != null) {
-            Setting.customLocations = custom_Locations
-        }
-//        if (wind_speed != null) {
-//            Settings. = wind_speed
-//        }
-        Setting.mapLocation = mapLocation!!
-    }
 
     private fun init() {
         sharedPreferences = requireActivity().getSharedPreferences(
-            "prefs",
-            Context.MODE_PRIVATE
-        )
+            "prefs", Context.MODE_PRIVATE)
         editor = sharedPreferences.edit()
         alarmManager =
             requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -133,7 +98,6 @@ class AlertsFragment : Fragment() {
         })
         getAlertFromDB()
         binding.btnAdd.setOnClickListener {
-            Log.i("tag","sizeOfAlert")
             binding.alertTime.text
             binding.alertDate.text
             if (myHour != null && myMin != null && myDay != null && myMon != null && myYear != null) {
@@ -143,78 +107,34 @@ class AlertsFragment : Fragment() {
                     myDay.toString() + "-" + myMon + "-" + myYear + " " + myHour + ":" + myMin
                 val dateLong = sdf.parse(date)!!.time
                 if (alertList.size > 0) {
-                    Log.i("tag","sizeOfAlert1111")
                     for (alertItem in alertList) {
                         if (dateLong / 1000 > alertItem.start && dateLong / 1000 < alertItem.end) {
                             if (notificationOrAlarm.equals("notification")) {
-                                setNotification(
-                                    myHour!!,
-                                    myMin!!,
-                                    myDay!!,
-                                    myMon!!,
-                                    myYear!!,
-                                    alertItem.event,
+                                setNotification(myHour!!, myMin!!, myDay!!, myMon!!, myYear!!, alertItem.event,
                                     "From ${formateTime(alertItem.start)} to ${formateTime(alertItem.end)}"
                                 )
                             } else {
-                                setAlaram(
-                                    alertItem.event,
-                                    alertItem.description,
-                                    myHour!!,
-                                    myMin!!,
-                                    myDay!!,
-                                    myMon!!,
-                                    myYear!!
-                                )
+                                setAlaram(alertItem.event, alertItem.description, myHour!!, myMin!!, myDay!!, myMon!!, myYear!!)
                             }
                             break
                         }
                     }
                 }else{
-                    Log.i("tag","sizeOfAlert222")
                     if (notificationOrAlarm.equals("notification")) {
-                        Log.i("tag","sizeOfAlert222")
-                        setNotification(
-                            myHour!!,
-                            myMin!!,
-                            myDay!!,
-                            myMon!!,
-                            myYear!!,
-                          //  alertList[0].event,
-                            //alertList[0].description
-                        "NOOOOOOOOOO",
-                            "NOOOOOOOOOO"
-                        )
-                    } else {
-                        setAlaram(
-                            "NOOOOOOOOOO",
-                            "NOOOOOOOOOO",
-                            myHour!!,
-                            myMin!!,
-                            myDay!!,
-                            myMon!!,
-                            myYear!!
-                        )
+                        setNotification(myHour!!, myMin!!, myDay!!, myMon!!, myYear!!, "NO Thing", "Nice Day")
+                    }else {
+                        setAlaram("NO Thing", "Nice Day", myHour!!, myMin!!, myDay!!, myMon!!, myYear!!)
                     }
                 }
             }else {
-                Log.i("tag","sizeOfAlert444")
-                Toast.makeText(requireActivity(), "Please Enter Data", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireActivity(), "Please Enter Valid Data", Toast.LENGTH_LONG).show()
             }
         }
 
         return binding.root
     }
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    fun setNotification(
-        hour: Int,
-        min: Int,
-        day: Int,
-        month: Int,
-        year: Int,
-        event: String,
-        description: String
-    ) {
+    fun setNotification(hour: Int, min: Int, day: Int, month: Int, year: Int, event: String, description: String) {
         val intentA = Intent(context, AlertReceiver::class.java)
         intentA.putExtra("event", event)
         intentA.putExtra("desc", description)
@@ -239,22 +159,13 @@ class AlertsFragment : Fragment() {
     private fun getAlertFromDB() {
         alertViewModel.getAlert(requireContext()).observe(viewLifecycleOwner,  {
             it?.let {
-                Log.i("tag","dataaaaasizeOfAlertAdapter")
                 alertAdapter.fetchData(it, requireContext())
-                Log.i("tag","sizeOfAlertAdapter")
                 binding.alertRV.adapter = alertAdapter
-                Log.i("tag","sizeOfAlertAdapter")
             }
         })
     }
 
-    private fun addAlert(
-        requestCode: Int,
-        event: String,
-        start: String,
-        description: String,
-        status: Boolean
-    ) {
+    private fun addAlert(requestCode: Int, event: String, start: String, description: String, status: Boolean) {
         val alert = AlertEntity(requestCode, event, start, description, status)
         uiScope.launch {
             alertViewModel.addAlert(alert,requireContext())
@@ -264,8 +175,7 @@ class AlertsFragment : Fragment() {
     }
     private fun setAlaram(
         event: String, desc: String, hour: Int,
-        min: Int, day: Int, month: Int, year: Int
-    ) {
+        min: Int, day: Int, month: Int, year: Int) {
         val intentA = Intent(context, DialogReceiver::class.java)
         intentA.putExtra("event", event)
         intentA.putExtra("desc", desc)
@@ -300,11 +210,7 @@ class AlertsFragment : Fragment() {
                 myMon = monthOfYear + 1
                 myYear = year
                 myDay = dayOfMonth
-            },
-            year,
-            month,
-            day
-        )
+            }, year, month, day)
         dpd.datePicker.minDate = System.currentTimeMillis() - 1000
         dpd.show()
     }
@@ -323,10 +229,8 @@ class AlertsFragment : Fragment() {
                 if (c.timeInMillis >= datetime.timeInMillis) {
                     binding.alertTime.setText("" + h + ":" + m)
                     binding.alertTime.visibility = View.VISIBLE
-
                     myHour = h
                     myMin = m
-                    Log.v("alert", "" + myHour + ":" + myMin)
                 } else {
                     Toast.makeText(requireActivity(), "Invalide Data", Toast.LENGTH_LONG).show()
                     binding.alertTime.setText(" ")
@@ -334,10 +238,9 @@ class AlertsFragment : Fragment() {
                 }
             }), hour, minute, false
         )
-
         tpd.show()
     }
-    // swipe for delete
+
     var itemTouchHelper: ItemTouchHelper.SimpleCallback =
         object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
@@ -351,10 +254,10 @@ class AlertsFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 AlertDialog.Builder(activity).setMessage("Do You Want to Delete this Alert ?!")
                     .setPositiveButton("Yes",
-                        DialogInterface.OnClickListener { dialog, id -> //when delete item from tripDatabase, add tripHistoryDB
+                        DialogInterface.OnClickListener { dialog, id ->
                             val alertItemDeleted = alertAdapter.getItemByVH(viewHolder)
                             cancelAlarm(alertItemDeleted.requestCode)
-                            deleteFavoriteItemFromDB(alertItemDeleted)
+                            deleteAlertFromDB(alertItemDeleted)
                             alertAdapter.removeAlertItem(viewHolder)
                         })
                     .setNegativeButton("No",
@@ -365,7 +268,7 @@ class AlertsFragment : Fragment() {
             }
         }
 
-    fun deleteFavoriteItemFromDB(alertDB: AlertEntity) {
+    fun deleteAlertFromDB(alertDB: AlertEntity) {
         alertViewModel.deleteAlert(alertDB,requireContext())
     }
 
@@ -379,4 +282,4 @@ class AlertsFragment : Fragment() {
         super.onDestroy()
         job.cancel()
     }
-    }
+}

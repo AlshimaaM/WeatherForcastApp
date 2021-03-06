@@ -11,7 +11,7 @@ import retrofit2.http.Query
 interface WeatherAPI {
     @GET("onecall")
     fun getWeather(@Query("lat")lat:String, @Query("lon")lng:String,
-                   @Query("exclude")exclude:String, @Query("units")units:String="metric",
+                   @Query("exclude")exclude:String, @Query("units")units:String,
                    @Query("lang")languageCode:String, @Query("appid")appid:String): Call<Model>
 
 }

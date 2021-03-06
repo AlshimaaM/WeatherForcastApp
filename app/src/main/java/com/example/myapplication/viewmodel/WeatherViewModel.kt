@@ -1,10 +1,9 @@
 package com.example.myapplication.viewmodel
 
+import android.app.Application
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.net.ConnectivityManager
+import androidx.lifecycle.*
 import com.example.myapplication.data.local.database.entity.DaysEntity
 import com.example.myapplication.data.local.database.entity.HoursEntity
 import com.example.myapplication.data.local.database.entity.WeatherEntity
@@ -14,10 +13,30 @@ import com.example.myapplication.model.Model
 import com.example.myapplication.provider.Setting
 import kotlinx.coroutines.launch
 
-class WeatherViewModel : ViewModel() {
+class WeatherViewModel(application: Application)  : AndroidViewModel(application) {
 
-    private var weatherRepositiry: WeatherRepositiry = WeatherRepositiry()
+    private var weatherRepositiry: WeatherRepositiry = WeatherRepositiry(application)
       var weatherMutableLiveData: MutableLiveData<Model> = MutableLiveData()
+    private var progress :MutableLiveData<Int> =MutableLiveData<Int>()
+
+    fun internetAvailable(context: Context): Boolean {
+        var connected = false
+        var connected1 = false
+        var connected2 = false
+        val s = Context.CONNECTIVITY_SERVICE
+        val manager = context.getSystemService(s) as ConnectivityManager?
+        val info = manager?.activeNetworkInfo
+        if (info != null && info.isConnected) {
+            connected = info.type == ConnectivityManager.TYPE_WIFI
+            connected1 = info.type == ConnectivityManager.TYPE_MOBILE
+            if (connected || connected1) {
+                connected2 = true
+            }
+        } else {
+            connected2 = false
+        }
+        return connected2
+    }
 
     fun fetchweather(lat: String, lng: String): MutableLiveData<Model> {
         weatherMutableLiveData = weatherRepositiry.getWeather(lat, lng)

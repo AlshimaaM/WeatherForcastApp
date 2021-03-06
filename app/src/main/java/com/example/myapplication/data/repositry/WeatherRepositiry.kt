@@ -1,8 +1,11 @@
 package com.example.myapplication.data.repositry
 
+import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.myapplication.SharedPrefrence
 import com.example.myapplication.data.local.database.WeatherDatabaseInstance
 import com.example.myapplication.data.local.database.entity.AlertEntity
 import com.example.myapplication.data.local.database.entity.FavouritEntity
@@ -13,17 +16,17 @@ import com.example.myapplication.provider.Setting
 import kotlinx.coroutines.*
 import java.lang.Exception
 
-class WeatherRepositiry {
+class WeatherRepositiry(application: Application) {
     private  var weatherMutableLiveData: MutableLiveData<Model> = MutableLiveData()
-
+    private val shared :SharedPrefrence= SharedPrefrence(application.applicationContext)
     fun getWeather(latitude: String, longitude: String): MutableLiveData<Model> {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = RetrofitInstance.getCurrentLocationweather(
                     latitude,
                     longitude,
-                    Setting.languageSystem,
-                    Setting.unitSystem
+                    shared.language!!,
+                    shared.units!!
                 ).execute()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {

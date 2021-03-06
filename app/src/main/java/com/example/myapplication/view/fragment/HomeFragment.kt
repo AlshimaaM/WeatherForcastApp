@@ -38,6 +38,7 @@ import com.bumptech.glide.Glide
 import com.example.FinalProject2.data.receiver.AlertReceiver
 import com.example.myapplication.HandlingLocation
 import com.example.myapplication.R
+import com.example.myapplication.SharedPrefrence
 import com.example.myapplication.adapter.DayAdapter
 import com.example.myapplication.adapter.HoursAdapter
 import com.example.myapplication.data.local.database.entity.DaysEntity
@@ -71,6 +72,8 @@ class HomeFragment :  Fragment() {
     private lateinit var editor: SharedPreferences.Editor
     private val CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084
     lateinit var mFusedLocationClient: FusedLocationProviderClient
+    private lateinit var shared : SharedPrefrence
+
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.IO + job)
 
@@ -80,9 +83,9 @@ class HomeFragment :  Fragment() {
             savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
-
+        shared= SharedPrefrence(requireContext())
         init()
-        settings()
+        //settings()
         if (sharedPreferences.getBoolean("USE_DEVICE_LOCATION", true)) {
             getLastLocation()
             setUpAlerts()
@@ -91,8 +94,11 @@ class HomeFragment :  Fragment() {
             Setting.longitude = prefs.getString("lon"," ")!!
             setUpAlerts()
         }
-           viewWeather(Setting.latitude, Setting.longitude)
-
+        if (homeViewModel.internetAvailable(requireContext())) {
+            viewWeather(Setting.latitude!!, Setting.longitude!!)
+        } else {
+            readFromDatabase()
+        }
         setUpAlerts()
         return binding.root
         }
@@ -105,6 +111,12 @@ class HomeFragment :  Fragment() {
        hoursAdapter = HoursAdapter()
        dayAdapter = DayAdapter()
 
+       sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+       prefs = requireActivity().getSharedPreferences(
+               "prefs",
+               Context.MODE_PRIVATE
+       )
+       editor = sharedPreferences.edit()
        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
        homeViewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
        workManager = WorkManager.getInstance(requireContext())
@@ -209,17 +221,16 @@ class HomeFragment :  Fragment() {
                 firstTime()
             }else {*/
             it?.let {
-                var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-                if (sharedPreferences.getString("UNIT_SYSTEM", "") == "K") {
-                    binding.tempreture.text = it.tempture.toString() + "°K"
-                } else if (sharedPreferences.getString("UNIT_SYSTEM", "") == "C") {
+              //  var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+                if (shared.units.equals("metric")) {
                     binding.tempreture.text = it.tempture.toString() + "°C"
+                } else if (shared.units.equals("standard")) {
+                    binding.tempreture.text = it.tempture.toString() + "°K"
                 } else {
                     binding.tempreture.text = it.tempture.toString() + "°F"
                 }
                 binding.pressure.text = it.pressure.toString()
                 binding.dateHome.text = "${RetrofitInstance.dateNow}"
-                binding.tempreture.text = it.tempture.toString()
                 binding.humidity.text = it.humidity.toString() + "%"
                 binding.cloud.text = it.clouds.toString()
                 var city = it.city.split("/").toTypedArray()
@@ -237,6 +248,7 @@ class HomeFragment :  Fragment() {
                     binding.hoursRecyclerview.adapter = hoursAdapter
                     dayAdapter.fetchData(listDaily, it)
                     binding.daysRecyclerview.adapter = dayAdapter
+
                 }
             }
      //   }
@@ -255,12 +267,10 @@ class HomeFragment :  Fragment() {
         })
     }
     private fun setUpAlerts() {
-        Log.v("homeTest", "here")
         if (sharedPreferences.getBoolean("ALERT", true) && prefs.getString("alerts", "yes")
                 .equals("yes")
         ) {
             setUpFetchFromApiWorker()
-            Log.v("homeTest", "here")
             editor.putString("alerts", "no")
             editor.commit()
             editor.apply()
@@ -293,13 +303,11 @@ class HomeFragment :  Fragment() {
     }
 
     private fun setUpFetchFromApiWorker() {
-        Log.v("homeTest", "here")
         val data: Data = Data.Builder().putString("lat", Setting.latitude).putString(
             "lon",
             Setting.longitude
         ).putString("lang", Setting.languageSystem).putString("units", Setting.unitSystem)
             .build()
-        Log.v("homeTest", Setting.latitude)
         val constrains = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
         val repeatingRequest = PeriodicWorkRequest.Builder(
             AlertWork::class.java, 1,
@@ -313,7 +321,6 @@ class HomeFragment :  Fragment() {
         workManager.getWorkInfoByIdLiveData(repeatingRequest.id).observe(
             viewLifecycleOwner,
             androidx.lifecycle.Observer {
-                Log.v("state", it.state.name)
             })
     }
     private fun settings() {
@@ -321,10 +328,12 @@ class HomeFragment :  Fragment() {
         val unitSystem = sharedPreferences.getString("UNIT_SYSTEM", "")
         val languageSystem = sharedPreferences.getString("LANGUAGE_SYSTEM", "")
         val location1 = sharedPreferences.getBoolean("USE_DEVICE_LOCATION", false)
-        //val notifications = sharedPreferences.getBoolean("USE_NOTIFICATIONS_ALERT", false)
         val locations = sharedPreferences.getString("CUSTOM_LOCATION", "")
         val mapLocation = sharedPreferences.getBoolean("MAP_LOCATION", false)
-        prefs = requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        prefs = requireActivity().getSharedPreferences(
+                "prefs",
+                Context.MODE_PRIVATE
+        )
         editor = sharedPreferences.edit()
         if (unitSystem != null) {
             Setting.unitSystem = unitSystem
@@ -335,14 +344,12 @@ class HomeFragment :  Fragment() {
         if (location1 != null) {
             Setting.deviceLocation = location1
         }
-        /* if (notifications != null) {
-             Settings.notifications = notifications
-         }*/
         if (locations != null) {
             Setting.customLocations = locations
         }
         Setting.mapLocation = mapLocation!!
     }
+
     private fun locationNotEnable() {
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
         alertDialogBuilder.setTitle("Location Not enable")

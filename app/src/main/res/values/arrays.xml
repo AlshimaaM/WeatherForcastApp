@@ -2,21 +2,21 @@
 <resources>
     <!-- Reply Preference -->
     <string-array name="unitSystemValues">
-        <item>K</item>
-        <item>C</item>
-        <item>F</item>
+        <item>metric</item>
+        <item>imperial</item>
+        <item>standard</item>
 
     </string-array>
 
     <string-array name="unitSystemEntries">
-        <item>Kelvin</item>
         <item>Celsius</item>
         <item>Fahrenheit</item>
+        <item>Kelvin</item>
     </string-array>
 
     <string-array name="langSystemValues">
-        <item>EN</item>
-        <item>AR</item>
+        <item>en</item>
+        <item>ar</item>
     </string-array>
 
     <string-array name="langSystemEntries">

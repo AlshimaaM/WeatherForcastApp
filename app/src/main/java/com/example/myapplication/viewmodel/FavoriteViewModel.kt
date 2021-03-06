@@ -1,10 +1,8 @@
 package com.example.myapplication.viewmodel
 
+import android.app.Application
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.myapplication.data.local.database.entity.DaysEntity
 import com.example.myapplication.data.local.database.entity.FavouritEntity
 import com.example.myapplication.data.local.database.entity.HoursEntity
@@ -12,13 +10,13 @@ import com.example.myapplication.data.repositry.WeatherRepositiry
 import com.example.myapplication.model.Model
 import kotlinx.coroutines.launch
 
-class FavoriteViewModel : ViewModel() {
+class FavoriteViewModel(application: Application)  : AndroidViewModel(application) {
 
     private var forecastRepository: WeatherRepositiry
     var favoriteData: LiveData<List<Model>>
 
     init {
-        forecastRepository = WeatherRepositiry()
+        forecastRepository = WeatherRepositiry(application)
         favoriteData = MutableLiveData()
     }
     suspend fun addFavoriteIntoDB(favouritDatabase: FavouritEntity, context: Context) {

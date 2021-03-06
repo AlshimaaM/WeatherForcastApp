@@ -51,7 +51,7 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
     ): View? {
         binding= DataBindingUtil.inflate(inflater, R.layout.fragment_favorite, container, false)
         init( )
-        if (Available(requireContext())) {
+        if (weathetViewModel.internetAvailable(requireContext())) {
             if (latLng != null) {
 
                 viewWeatherFav(latLng!!.latitude.toString(), latLng!!.longitude.toString())
@@ -65,24 +65,7 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
 
         return binding.root
     }
-    fun Available(context: Context): Boolean {
-        var connected = false
-        var connected1 = false
-        var connected2 = false
-        val s = Context.CONNECTIVITY_SERVICE
-        val manager = context.getSystemService(s) as ConnectivityManager?
-        val info = manager?.activeNetworkInfo
-        if (info != null && info.isConnected) {
-            connected = info.type == ConnectivityManager.TYPE_WIFI
-            connected1 = info.type == ConnectivityManager.TYPE_MOBILE
-            if (connected || connected1) {
-                connected2 = true
-            }
-        } else {
-            connected2 = false
-        }
-        return connected2
-    }
+
     private fun init() {
         weathetViewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
         viewModel = ViewModelProvider(this).get(FavoriteViewModel::class.java)
@@ -129,16 +112,12 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         })
     }
     private fun deleteItemBySwabbing() {
-        // Delete subject by swabbing item left and right
         val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-            90,
-            ItemTouchHelper.RIGHT
-        ) {
+            90, ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
+                target: RecyclerView.ViewHolder): Boolean {
                 return false
             }
 
@@ -151,7 +130,6 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         itemTouchHelper.attachToRecyclerView(binding.favRecycle)
     }
 
-
     fun openDialog(context: Context?, trip: FavouritEntity?, viewHolder: RecyclerView.ViewHolder) {
         val position = viewHolder.adapterPosition
 
@@ -159,14 +137,13 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         builder1.setTitle("Are you sure delete trip " + trip?.city.toString() + " ? ")
         builder1.setCancelable(false)
         builder1.setPositiveButton("Ok") { dialog, which ->
-            CoroutineScope(Dispatchers.IO).launch {
+           uiScope.launch {
                 try {
                     viewModel.deleteFav(favAdapter.getItem(position)!!, requireContext())
                 } catch (e: Exception) {
                     Log.i("Remove", "onBindViewHolder: a" + e.message)
                 }
             }
-            //adapter.setTrips(tripList);
         }
         builder1.setNegativeButton("CANCEL") { dialog, which ->
             if (context != null) {

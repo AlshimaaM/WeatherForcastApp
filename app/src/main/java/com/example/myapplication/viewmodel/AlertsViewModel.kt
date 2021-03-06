@@ -1,15 +1,17 @@
 package com.example.myapplication.viewmodel
 
+import android.app.Application
 import android.content.Context
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.example.myapplication.data.local.database.entity.AlertEntity
 import com.example.myapplication.data.repositry.WeatherRepositiry
 
-class AlertsViewModel :   ViewModel() {
+class AlertsViewModel(application: Application)  :   AndroidViewModel(application) {
     private var repo: WeatherRepositiry
     init {
-        repo = WeatherRepositiry()
+        repo = WeatherRepositiry(application)
     }
 
     suspend fun addAlert(alertDatabase: AlertEntity, context: Context) {
