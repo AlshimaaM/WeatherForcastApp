@@ -35,11 +35,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class AlertsFragment : Fragment() {
-    var myHour: Int? = null
-    var myMin: Int? = null
-    var myYear: Int? = null
-    var myMon: Int? = null
-    var myDay: Int? = null
+
     private lateinit var binding: FragmentAlertsBinding
     private lateinit var alarmManager: AlarmManager
     lateinit var sharedPreferences: SharedPreferences
@@ -50,6 +46,11 @@ class AlertsFragment : Fragment() {
     private lateinit var alertList: List<AlertsItem>
     private var notificationOrAlarm = "notification"
     lateinit var prefs: SharedPreferences
+    var myHour: Int? = null
+    var myMin: Int? = null
+    var myYear: Int? = null
+    var myMon: Int? = null
+    var myDay: Int? = null
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.IO + job)
 
@@ -121,13 +122,13 @@ class AlertsFragment : Fragment() {
                     }
                 }else{
                     if (notificationOrAlarm.equals("notification")) {
-                        setNotification(myHour!!, myMin!!, myDay!!, myMon!!, myYear!!, "NO Thing", "Nice Day")
+                        setNotification(myHour!!, myMin!!, myDay!!, myMon!!, myYear!!, getString(R.string.noThing), getString(R.string.niceDay))
                     }else {
-                        setAlaram("NO Thing", "Nice Day", myHour!!, myMin!!, myDay!!, myMon!!, myYear!!)
+                        setAlaram(getString(R.string.noThing), getString(R.string.niceDay), myHour!!, myMin!!, myDay!!, myMon!!, myYear!!)
                     }
                 }
             }else {
-                Toast.makeText(requireActivity(), "Please Enter Valid Data", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireActivity(), getString(R.string.please), Toast.LENGTH_LONG).show()
             }
         }
 
@@ -191,7 +192,7 @@ class AlertsFragment : Fragment() {
         calendar[Calendar.SECOND] = 0
         val alarmtime: Long = calendar.timeInMillis
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmtime, pendingIntentA)
-        Toast.makeText(context,"Done!", Toast.LENGTH_LONG).show()
+        Toast.makeText(context,getString(R.string.added), Toast.LENGTH_LONG).show()
         requireActivity().registerReceiver(DialogReceiver(), IntentFilter())
         var date = day.toString() + "/" + month + "/" + year + " " + hour + ":" + min
 

@@ -4,9 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <variable
-            name="enableLocation"
-            type="com.example.myapplication.model.Model" />
+
     </data>
     <ScrollView
         android:layout_width="match_parent"
@@ -63,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:textColor="@color/white"
-                    android:textSize="50sp"
+                    android:textSize="40sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/date_home"
@@ -443,11 +441,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/line2"
                         />
                 </LinearLayout>
-
-
-
             </androidx.cardview.widget.CardView>
-
 
         </LinearLayout>
 

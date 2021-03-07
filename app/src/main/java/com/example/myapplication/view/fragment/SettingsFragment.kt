@@ -1,12 +1,11 @@
 package com.example.myapplication.view.fragment
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.Toast
 import androidx.navigation.findNavController
 import androidx.preference.*
 import com.example.myapplication.R
-import com.example.myapplication.SharedPrefrence
 import com.example.myapplication.provider.Setting
 import com.example.myapplication.util.ContextUtils.Companion.setLocal
 import com.example.myapplication.view.activity.MainActivity
@@ -32,14 +31,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             true
         }
-        preferenceManager.findPreference<Preference>("UNIT_SYSTEM")!!
-                .setOnPreferenceChangeListener(Preference.OnPreferenceChangeListener { preference, newValue ->
-
-                    startActivity(Intent(requireContext(),MainActivity::class.java))
-                    return@OnPreferenceChangeListener true
-                })
-
-            editSettings()
+         //   editSettings()
         }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -47,38 +39,36 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     }
         fun editSettings(){
-            val sp : SharedPrefrence = SharedPrefrence(requireActivity())
-
-            //val sp: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+          //  val sp : SharedPrefrence = SharedPrefrence(requireActivity())
             val LP = findPreference("LANGUAGE_SYSTEM") as ListPreference?
-          //  val lan = sp.getString("LANGUAGE_SYSTEM", "ar")
-            val lan = sp.language
+            val lan = Setting.getLocalLanguage(requireContext())
             if ("ar".equals(lan)) {
-                setLocal(requireActivity(), sp.language)
+                setLocal(requireActivity(), "ar")
                 LP?.setSummary(LP?.getEntry())
 
             }else {
-                setLocal(requireActivity(), sp.language)
+                setLocal(requireActivity(), "en")
                LP?.setSummary(LP?.getEntry())
             }
-            LP!!.setOnPreferenceChangeListener(androidx.preference.Preference.OnPreferenceChangeListener { prefs, obj ->
-                val items = obj as String
-                if (prefs.key == "LANGUAGE_SYSTEM") {
-                    when (items) {
-                        "ar" ->
-                        { setLocal(requireActivity(), sp.language)
-                            val intent = Intent(requireActivity(), MainActivity::class.java)
-                            startActivity(intent)}
-                        "en" -> {
-                            setLocal(requireActivity(), sp.language)
-                            val intent = Intent(requireActivity(), MainActivity::class.java)
-                            startActivity(intent)}
-                    }
-                    val UU = prefs as ListPreference
-                    UU.summary = UU.entries[UU.findIndexOfValue(items)]
+
+    LP!!.setOnPreferenceChangeListener(androidx.preference.Preference.OnPreferenceChangeListener { prefs, obj ->
+        val items = obj as String
+            if (prefs.key == "LANGUAGE_SYSTEM") {
+                when (items) {
+                    "ar" ->
+                    { Setting.setLocalLanguage("ar", requireContext())
+                       activity?.let { it1 -> setLocal(it1, "ar") }
+                      startActivity(Intent(requireContext(), MainActivity::class.java))}
+                    "en" -> {
+                        Setting.setLocalLanguage("en", requireContext())
+                        activity?.let { it1 -> setLocal(it1, "en") }
+                        startActivity(Intent(requireContext(), MainActivity::class.java))}
                 }
-                true
-            })
+                     val UU = prefs as ListPreference
+                     UU.summary = UU.entries[UU.findIndexOfValue(items)]
+             }
+                    true
+                    })
         }
 
 }

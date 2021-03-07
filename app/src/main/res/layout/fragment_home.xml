@@ -4,9 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <variable
-            name="enableLocation"
-            type="com.example.myapplication.model.Model" />
+
     </data>
     <ScrollView
         android:layout_width="match_parent"
@@ -19,14 +17,6 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             tools:context=".view.fragment.HomeFragment">
-            <ProgressBar
-                android:visibility="visible"
-                android:id="@+id/progress_circular"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="600dp"
-                android:layout_centerInParent="true"
-                android:layout_gravity="center" />
         <LinearLayout
             android:id="@+id/linear_layout"
             android:layout_width="match_parent"

@@ -1,6 +1,7 @@
 package com.example.myapplication.data.remote
 
 import com.example.myapplication.model.Model
+import com.example.myapplication.provider.Setting
 import com.example.myapplication.util.Constant
 import retrofit2.Call
 import retrofit2.Retrofit

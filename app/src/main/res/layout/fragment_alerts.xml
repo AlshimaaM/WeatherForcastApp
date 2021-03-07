@@ -110,6 +110,7 @@
             android:layout_margin="16dp"
             android:backgroundTint="@color/light_red"
             android:gravity="center"
+            android:shadowRadius="@android:integer/config_shortAnimTime"
             android:text="Add Alert"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"

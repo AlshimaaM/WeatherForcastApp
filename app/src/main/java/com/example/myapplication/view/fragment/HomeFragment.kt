@@ -7,10 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.drm.ProcessedData
 import android.location.Location
 import android.location.LocationManager
-import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,37 +18,31 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.*
 import com.bumptech.glide.Glide
 import com.example.FinalProject2.data.receiver.AlertReceiver
-import com.example.myapplication.HandlingLocation
 import com.example.myapplication.R
 import com.example.myapplication.SharedPrefrence
 import com.example.myapplication.adapter.DayAdapter
 import com.example.myapplication.adapter.HoursAdapter
 import com.example.myapplication.data.local.database.entity.DaysEntity
 import com.example.myapplication.data.local.database.entity.HoursEntity
-import com.example.myapplication.data.local.database.entity.WeatherEntity
 import com.example.myapplication.data.remote.RetrofitInstance
 import com.example.myapplication.data.remote.RetrofitInstance.getImage
 import com.example.myapplication.databinding.FragmentHomeBinding
-import com.example.myapplication.model.AlertsItem
-import com.example.myapplication.model.Model
 import com.example.myapplication.provider.Setting
 import com.example.myapplication.util.AlertWork
+import com.example.myapplication.util.ContextUtils.Companion.setLocal
+import com.example.myapplication.util.ContextUtils.Companion.settings
 import com.example.myapplication.viewmodel.WeatherViewModel
 import com.google.android.gms.location.*
 import com.google.gson.Gson
@@ -72,20 +64,27 @@ class HomeFragment :  Fragment() {
     private lateinit var editor: SharedPreferences.Editor
     private val CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084
     lateinit var mFusedLocationClient: FusedLocationProviderClient
-    private lateinit var shared : SharedPrefrence
-
+   // private lateinit var shared : SharedPrefrence
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.IO + job)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        /*activity?.let {
+            setLocal(
+                    it,
+                    Setting.getLocalLanguage(requireContext()))
+        }*/
+    }
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
-        shared= SharedPrefrence(requireContext())
+
         init()
-        //settings()
+       settings(requireContext())
         if (sharedPreferences.getBoolean("USE_DEVICE_LOCATION", true)) {
             getLastLocation()
             setUpAlerts()
@@ -110,15 +109,12 @@ class HomeFragment :  Fragment() {
                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
        hoursAdapter = HoursAdapter()
        dayAdapter = DayAdapter()
-
+       //shared= SharedPrefrence(requireContext())
        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-       prefs = requireActivity().getSharedPreferences(
-               "prefs",
-               Context.MODE_PRIVATE
-       )
+       prefs = requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
        editor = sharedPreferences.edit()
-       mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
        homeViewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
+       mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
        workManager = WorkManager.getInstance(requireContext())
        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(
                        requireContext()
@@ -215,27 +211,36 @@ class HomeFragment :  Fragment() {
             }
         }
     }
+    @SuppressLint("SetTextI18n")
     fun readFromDatabase() {
         homeViewModel.getWeather(requireContext()).observe(viewLifecycleOwner, Observer {
            /*   if (it==null){
                 firstTime()
             }else {*/
             it?.let {
-              //  var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-                if (shared.units.equals("metric")) {
+            /*    if (shared.units.equals("metric")) {
+                binding.tempreture.text = it.tempture.toString() + "°C"
+            }else if (shared.units.equals("standard")) {
+                binding.tempreture.text = it.tempture.toString() + "°K"
+            } else {
+                binding.tempreture.text = it.tempture.toString() + "°F"
+            }*/
+                    if (sharedPreferences.getString("UNIT_SYSTEM","metric").equals("metric")) {
                     binding.tempreture.text = it.tempture.toString() + "°C"
-                } else if (shared.units.equals("standard")) {
+                        binding.wind.text = it.wind_speed.toString()+ " " +"m/s"
+                    } else if (sharedPreferences.getString("UNIT_SYSTEM","").equals("standard")) {
                     binding.tempreture.text = it.tempture.toString() + "°K"
+                        binding.wind.text = it.wind_speed.toString()+ " " + "m/s"
                 } else {
                     binding.tempreture.text = it.tempture.toString() + "°F"
+                        binding.wind.text = it.wind_speed.toString()+ " " + "m/h"
                 }
-                binding.pressure.text = it.pressure.toString()
+                binding.pressure.text = it.pressure.toString()+ " hPa"
                 binding.dateHome.text = "${RetrofitInstance.dateNow}"
                 binding.humidity.text = it.humidity.toString() + "%"
                 binding.cloud.text = it.clouds.toString()
                 var city = it.city.split("/").toTypedArray()
                 binding.cityName.text = city[1]
-                binding.wind.text = it.wind_speed.toString()
                 binding.discription.text = it.descrption
                 binding.maxTep.text = it.dail_Weather[0].maxTemp.toString()
                 binding.minTep.text = it.dail_Weather[0].minTemp.toString()
@@ -323,18 +328,13 @@ class HomeFragment :  Fragment() {
             androidx.lifecycle.Observer {
             })
     }
-    private fun settings() {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+  /*  private fun settings() {
         val unitSystem = sharedPreferences.getString("UNIT_SYSTEM", "")
         val languageSystem = sharedPreferences.getString("LANGUAGE_SYSTEM", "")
         val location1 = sharedPreferences.getBoolean("USE_DEVICE_LOCATION", false)
         val locations = sharedPreferences.getString("CUSTOM_LOCATION", "")
         val mapLocation = sharedPreferences.getBoolean("MAP_LOCATION", false)
-        prefs = requireActivity().getSharedPreferences(
-                "prefs",
-                Context.MODE_PRIVATE
-        )
-        editor = sharedPreferences.edit()
+
         if (unitSystem != null) {
             Setting.unitSystem = unitSystem
         }
@@ -348,7 +348,7 @@ class HomeFragment :  Fragment() {
             Setting.customLocations = locations
         }
         Setting.mapLocation = mapLocation!!
-    }
+    }*/
 
     private fun locationNotEnable() {
         val alertDialogBuilder = AlertDialog.Builder(requireContext())

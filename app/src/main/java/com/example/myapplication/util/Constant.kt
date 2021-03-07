@@ -1,5 +1,6 @@
 package com.example.myapplication.util
 
+import com.example.myapplication.provider.Setting
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -11,6 +12,7 @@ object Constant {
     val BASE_URL = "https://api.openweathermap.org/data/2.5/"
    val GEO_URL= "http://api.openweathermap.org/geo/1.0/"
 
+
     fun convertLongToDay(dayConvert: Int):String{
         val dateFormat= SimpleDateFormat("EEE")
         val date= Date()
@@ -18,4 +20,5 @@ object Constant {
         return dateFormat.format(date)
 
     }
+
 }

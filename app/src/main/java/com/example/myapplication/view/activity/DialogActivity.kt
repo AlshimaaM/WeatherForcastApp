@@ -18,7 +18,7 @@ import java.util.*
 
 class DialogActivity : AppCompatActivity() {
 
-    private lateinit var r: Ringtone
+    private lateinit var ringtone: Ringtone
     var event = ""
     var desc = ""
 
@@ -26,7 +26,7 @@ class DialogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dialog)
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-        r = RingtoneManager.getRingtone(applicationContext, notification)
+        ringtone = RingtoneManager.getRingtone(applicationContext, notification)
         if (intent.extras != null) {
            // senderName = intent.getStringExtra("sender_name").toString()
             event = intent.getStringExtra("event").toString()
@@ -36,10 +36,9 @@ class DialogActivity : AppCompatActivity() {
 
     }
 
-
     @SuppressLint("SetTextI18n")
     private fun showDialogAlart() {
-        r.play()
+        ringtone.play()
         val dialog = Dialog(this, R.style.Theme_Dialog)
         dialog.setContentView(R.layout.dialog_custom_alarm)
         val txtEvent = dialog.findViewById<TextView>(R.id.dialog_event)
@@ -47,8 +46,8 @@ class DialogActivity : AppCompatActivity() {
         val imgClose = dialog.findViewById<ImageView>(R.id.img_close)
 
         imgClose.setOnClickListener {
-            if (r.isPlaying) {
-                r.stop()
+            if (ringtone.isPlaying) {
+                ringtone.stop()
             }
             dialog.dismiss()
             finish()

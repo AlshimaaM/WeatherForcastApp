@@ -16,26 +16,13 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.example.myapplication.R
+import com.example.myapplication.provider.Setting
 import com.example.myapplication.util.ContextUtils
+import com.example.myapplication.util.ContextUtils.Companion.changeLang
+import com.example.myapplication.util.ContextUtils.Companion.setLocal
+import com.example.myapplication.util.ContextUtils.Companion.updateLocalization
 import java.util.*
 /*
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
-
-        val navController = findNavController(R.id.nav_host_fragment)
-        val appBarConfiguration = AppBarConfiguration(setOf(
-            R.id.navigation_home,
-            R.id.navigation_fav,
-            R.id.navigation_alert,
-            R.id.navigation_settings
-        ))
-        navView.setupWithNavController(navController)
-    }
-*//*
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -43,15 +30,13 @@ class MainActivity : AppCompatActivity() {
         val fragment = supportFragmentManager.findFragmentById(R.id.navigation_home)
         fragment!!.onActivityResult(requestCode, resultCode, data)
     }
-*//*
-
-
 }*/
 class MainActivity : AppCompatActivity()  {
     private lateinit var bottom_nav: BottomNavigationView
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
+      //  setLocal(this, Setting.getLocalLanguage(this))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
@@ -60,13 +45,18 @@ class MainActivity : AppCompatActivity()  {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return NavigationUI.navigateUp(navController,null)    }
+        return NavigationUI.navigateUp(navController,null)
+    }
 
-   /* override fun attachBaseContext(newBase: Context?) {
+ /*   override fun attachBaseContext(newBase: Context) {
+        val context: Context = changeLang(newBase, Locale(Setting.getLocalLanguage(newBase)))
+        super.attachBaseContext(context)
+    }*/
+    override fun attachBaseContext(newBase: Context?) {
 
         val sp = PreferenceManager.getDefaultSharedPreferences(newBase)
         val lang = sp.getString("LANGUAGE_SYSTEM", Locale.getDefault().language)
-        val context = ContextUtils.updateLocalization(newBase!!, Locale(lang))
+        updateLocalization(newBase!!, Locale(lang))
         super.attachBaseContext(newBase)
-    }*/
+    }
 }

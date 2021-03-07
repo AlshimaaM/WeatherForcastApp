@@ -22,6 +22,9 @@ import com.example.myapplication.R
 import com.example.myapplication.adapter.FavouritAdapter
 import com.example.myapplication.data.local.database.entity.FavouritEntity
 import com.example.myapplication.databinding.FragmentFavoriteBinding
+import com.example.myapplication.provider.Setting
+import com.example.myapplication.util.ContextUtils
+import com.example.myapplication.util.ContextUtils.Companion.settings
 import com.example.myapplication.viewmodel.FavoriteViewModel
 import com.example.myapplication.viewmodel.WeatherViewModel
 import com.google.android.gms.maps.model.LatLng
@@ -49,20 +52,20 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding= DataBindingUtil.inflate(inflater, R.layout.fragment_favorite, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_favorite, container, false)
+
         init( )
+        settings(requireContext())
         if (weathetViewModel.internetAvailable(requireContext())) {
             if (latLng != null) {
-
                 viewWeatherFav(latLng!!.latitude.toString(), latLng!!.longitude.toString())
             }else{
                 dataFromDatabase()
             }
-        } else {
+        }else {
             dataFromDatabase()
         }
         deleteItemBySwabbing()
-
         return binding.root
     }
 

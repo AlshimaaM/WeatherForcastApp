@@ -30,17 +30,14 @@ class NotificationHelper(base: Context?, intent: Intent) : ContextWrapper(base) 
     val manager: NotificationManager?
         get() {
             if (mManager == null) {
-                mManager =
-                    getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                mManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             }
             return mManager
         }
 
     val channelNotification: NotificationCompat.Builder
         get() = NotificationCompat.Builder(
-            applicationContext,
-            channelID
-        )
+            applicationContext, channelID)
             .setContentTitle("Alert")
             .setContentText(intent.getStringExtra("event") + " " + intent.getStringExtra("desc"))
             .setSmallIcon(R.drawable.ic_alerts)

@@ -89,9 +89,6 @@ class AlertWork(context: Context, workerParams: WorkerParameters) :
             editor.putString("requestsOfAlerts", requestCodeJson)
             editor.commit()
             editor.apply()
-        }else{
-            Log.i("alertTest", "no set alarm")
-
         }
     }
     fun fetchWeather(): MutableLiveData<Model> {
@@ -121,8 +118,8 @@ class AlertWork(context: Context, workerParams: WorkerParameters) :
         val intent = Intent(mCtx, AlertReceiver::class.java)
         intent.putExtra("event", event)
         intent.putExtra("desc", description)
-        val r = Random()
-        val i1 = r.nextInt(99)
+        val random = Random()
+        val i1 = random.nextInt(99)
 
         val pendingIntent = PendingIntent.getBroadcast(mCtx, i1, intent, 0)
         requestCodeList.add(i1)

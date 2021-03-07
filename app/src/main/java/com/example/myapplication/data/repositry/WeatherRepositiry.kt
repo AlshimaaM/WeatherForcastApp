@@ -18,15 +18,15 @@ import java.lang.Exception
 
 class WeatherRepositiry(application: Application) {
     private  var weatherMutableLiveData: MutableLiveData<Model> = MutableLiveData()
-    private val shared :SharedPrefrence= SharedPrefrence(application.applicationContext)
+  //  private val shared :SharedPrefrence= SharedPrefrence(application.applicationContext)
     fun getWeather(latitude: String, longitude: String): MutableLiveData<Model> {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = RetrofitInstance.getCurrentLocationweather(
                     latitude,
                     longitude,
-                    shared.language!!,
-                    shared.units!!
+                   Setting.languageSystem,
+                   Setting.unitSystem
                 ).execute()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
