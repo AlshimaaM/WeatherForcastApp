@@ -14,7 +14,6 @@ import java.util.*
 class AlertAdapter (val context: Context) : RecyclerView.Adapter<AlertAdapter.ViewHolder>() {
     private  var alertList  : MutableList<AlertEntity>
 
-
     init {
         alertList = ArrayList<AlertEntity>()
     }

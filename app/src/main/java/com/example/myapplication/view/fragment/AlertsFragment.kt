@@ -1,10 +1,10 @@
 package com.example.myapplication.view.fragment
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,17 +17,14 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.FinalProject2.data.receiver.AlertReceiver
-import com.example.FinalProject2.data.receiver.DialogReceiver
 import com.example.myapplication.R
 import com.example.myapplication.adapter.AlertAdapter
 import com.example.myapplication.data.local.database.entity.AlertEntity
 import com.example.myapplication.data.remote.RetrofitInstance.formateTime
 import com.example.myapplication.databinding.FragmentAlertsBinding
-import com.example.myapplication.databinding.FragmentHomeBinding
 import com.example.myapplication.model.AlertsItem
-import com.example.myapplication.model.Model
-import com.example.myapplication.provider.Setting
+import com.example.myapplication.receiver.AlertReceiver
+import com.example.myapplication.receiver.DialogReceiver
 import com.example.myapplication.viewmodel.AlertsViewModel
 import com.example.myapplication.viewmodel.WeatherViewModel
 import kotlinx.coroutines.*
@@ -38,14 +35,14 @@ class AlertsFragment : Fragment() {
 
     private lateinit var binding: FragmentAlertsBinding
     private lateinit var alarmManager: AlarmManager
-    lateinit var sharedPreferences: SharedPreferences
-    lateinit var editor: SharedPreferences.Editor
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
     private lateinit var viewModel: WeatherViewModel
     private lateinit var alertViewModel: AlertsViewModel
     private lateinit var alertAdapter: AlertAdapter
     private lateinit var alertList: List<AlertsItem>
     private var notificationOrAlarm = "notification"
-    lateinit var prefs: SharedPreferences
+    private lateinit var prefs: SharedPreferences
     var myHour: Int? = null
     var myMin: Int? = null
     var myYear: Int? = null
@@ -58,8 +55,7 @@ class AlertsFragment : Fragment() {
         sharedPreferences = requireActivity().getSharedPreferences(
             "prefs", Context.MODE_PRIVATE)
         editor = sharedPreferences.edit()
-        alarmManager =
-            requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alertList = ArrayList()
         binding.alertRV.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         binding.alertRV.setHasFixedSize(true)
@@ -71,43 +67,44 @@ class AlertsFragment : Fragment() {
         prefs = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
+    @SuppressLint("SimpleDateFormat")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_alerts, container, false)
+        binding.radioGroupNOrA.setOnCheckedChangeListener { group, checkedId ->
+            if (checkedId == R.id.notification) {
+                notificationOrAlarm = "notification"
+            } else {
+                notificationOrAlarm = "alarm"
+            }
+        }
         binding.alertDate.setOnClickListener {
             getDate()
         }
         binding.alertTime.setOnClickListener {
             getTime()
         }
-        binding.radioGroupNOrA.setOnCheckedChangeListener({ group, checkedId ->
-                if (checkedId == R.id.notification) {
-                    notificationOrAlarm = "notification"
-                } else {
-                    notificationOrAlarm = "alarm"
-                }
-            })
+
         init()
         viewModel.getWeather(requireContext()).observe(viewLifecycleOwner,{
             it?.let {
-                if (it.alerts_Weather.size > 0) {
+                if (it.alerts_Weather.isNotEmpty()) {
                     alertList = it.alerts_Weather
                 }
             }
         })
         getAlertFromDB()
         binding.btnAdd.setOnClickListener {
-            binding.alertTime.text
-            binding.alertDate.text
+           /* binding.alertTime.text
+            binding.alertDate.text*/
             if (myHour != null && myMin != null && myDay != null && myMon != null && myYear != null) {
                 val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm")
 
-                val date: String =
-                    myDay.toString() + "-" + myMon + "-" + myYear + " " + myHour + ":" + myMin
+                val date: String = myDay.toString() + "-" + myMon + "-" + myYear + " " + myHour + ":" + myMin
                 val dateLong = sdf.parse(date)!!.time
-                if (alertList.size > 0) {
+                if (alertList.isNotEmpty()) {
                     for (alertItem in alertList) {
                         if (dateLong / 1000 > alertItem.start && dateLong / 1000 < alertItem.end) {
                             if (notificationOrAlarm.equals("notification")) {
@@ -153,7 +150,7 @@ class AlertsFragment : Fragment() {
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmtime, pendingIntentA)
         Toast.makeText(context,"Done!", Toast.LENGTH_LONG).show()
         requireActivity().registerReceiver(AlertReceiver(), IntentFilter())
-        var date = day.toString() + "/" + month + "/" + year + " " + hour + ":" + min
+        val date = "$day/$month/$year $hour:$min"
 
         addAlert(i1, event, date, description, true)
     }
@@ -180,9 +177,9 @@ class AlertsFragment : Fragment() {
         val intentA = Intent(context, DialogReceiver::class.java)
         intentA.putExtra("event", event)
         intentA.putExtra("desc", desc)
-        val r = Random()
-        val i1 = r.nextInt(99)
-        val pendingIntentA = PendingIntent.getBroadcast(context, i1, intentA, 0)
+        val random = Random()
+        val int1 = random.nextInt(99)
+        val pendingIntentA = PendingIntent.getBroadcast(context, int1, intentA, 0)
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, hour)
         calendar.set(Calendar.MINUTE, min)
@@ -194,18 +191,19 @@ class AlertsFragment : Fragment() {
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmtime, pendingIntentA)
         Toast.makeText(context,getString(R.string.added), Toast.LENGTH_LONG).show()
         requireActivity().registerReceiver(DialogReceiver(), IntentFilter())
-        var date = day.toString() + "/" + month + "/" + year + " " + hour + ":" + min
+        val date = "$day/$month/$year $hour:$min"
 
-        addAlert(i1, event, date, desc, true)
+        addAlert(int1, event, date, desc, true)
     }
+    @SuppressLint("SetTextI18n")
     private fun getDate() {
         val c = Calendar.getInstance()
-        var year = c.get(Calendar.YEAR)
-        var month = c.get(Calendar.MONTH)
-        var day = c.get(Calendar.DAY_OF_MONTH)
+        val year = c.get(Calendar.YEAR)
+        val month = c.get(Calendar.MONTH)
+        val day = c.get(Calendar.DAY_OF_MONTH)
         val dpd = DatePickerDialog(
-            requireContext(), { view, year, monthOfYear, dayOfMonth ->
-                binding.alertDate.setText("" + dayOfMonth + "/" + (monthOfYear + 1) + "/" + year)
+            requireContext(), { _, year, monthOfYear, dayOfMonth ->
+                binding.alertDate.text = "" + dayOfMonth + "/" + (monthOfYear + 1) + "/" + year
                 binding.alertDate.visibility = View.VISIBLE
 
                 myMon = monthOfYear + 1
@@ -218,26 +216,26 @@ class AlertsFragment : Fragment() {
 
     private fun getTime() {
         val c = Calendar.getInstance()
-        var hour = c.get(Calendar.HOUR)
+        val hour = c.get(Calendar.HOUR)
         val minute = c.get(Calendar.MINUTE)
         val datetime = Calendar.getInstance()
 
         val tpd = TimePickerDialog(
             requireContext(),
-            TimePickerDialog.OnTimeSetListener(function = { view, h, m ->
-                c[Calendar.HOUR_OF_DAY] = h
-                c[Calendar.MINUTE] = m
-                if (c.timeInMillis >= datetime.timeInMillis) {
-                    binding.alertTime.setText("" + h + ":" + m)
-                    binding.alertTime.visibility = View.VISIBLE
-                    myHour = h
-                    myMin = m
-                } else {
-                    Toast.makeText(requireActivity(), "Invalide Data", Toast.LENGTH_LONG).show()
-                    binding.alertTime.setText(" ")
-                    binding.alertTime.visibility = View.VISIBLE
-                }
-            }), hour, minute, false
+                { view, h, m ->
+                    c[Calendar.HOUR_OF_DAY] = h
+                    c[Calendar.MINUTE] = m
+                    if (c.timeInMillis >= datetime.timeInMillis) {
+                        binding.alertTime.setText("" + h + ":" + m)
+                        binding.alertTime.visibility = View.VISIBLE
+                        myHour = h
+                        myMin = m
+                    } else {
+                        Toast.makeText(requireActivity(), getString(R.string.invalid), Toast.LENGTH_LONG).show()
+                        binding.alertTime.text = " "
+                        binding.alertTime.visibility = View.VISIBLE
+                    }
+                }, hour, minute, false
         )
         tpd.show()
     }
@@ -247,24 +245,23 @@ class AlertsFragment : Fragment() {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
+                target: RecyclerView.ViewHolder): Boolean {
                 return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                AlertDialog.Builder(activity).setMessage("Do You Want to Delete this Alert ?!")
-                    .setPositiveButton("Yes",
-                        DialogInterface.OnClickListener { dialog, id ->
-                            val alertItemDeleted = alertAdapter.getItemByVH(viewHolder)
-                            cancelAlarm(alertItemDeleted.requestCode)
-                            deleteAlertFromDB(alertItemDeleted)
-                            alertAdapter.removeAlertItem(viewHolder)
-                        })
-                    .setNegativeButton("No",
-                        DialogInterface.OnClickListener { dialog, id ->
-                            getAlertFromDB()
-                        }).show()
+                AlertDialog.Builder(activity).setMessage(getString(R.string.deletAlert))
+                    .setPositiveButton(getString(R.string.yes)
+                    ) { dialog, id ->
+                        val alertItemDeleted = alertAdapter.getItemByVH(viewHolder)
+                        cancelAlarm(alertItemDeleted.requestCode)
+                        deleteAlertFromDB(alertItemDeleted)
+                        alertAdapter.removeAlertItem(viewHolder)
+                    }
+                        .setNegativeButton(getString(R.string.no),
+                            { dialog, id ->
+                                getAlertFromDB()
+                            }).show()
 
             }
         }

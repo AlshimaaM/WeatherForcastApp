@@ -34,4 +34,9 @@
     <string name="please">Please Enter Valid Data</string>
     <string name="noThing">NO Thing</string>
     <string name="niceDay">Nice Day</string>
+    <string name="deletAlert">Do You Want to Delete this Alert ?!</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="invalid">Invalide Data</string>
+    <string name="about">About Weather</string>
 </resources>

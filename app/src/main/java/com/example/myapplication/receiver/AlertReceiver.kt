@@ -1,4 +1,4 @@
-package com.example.FinalProject2.data.receiver
+package com.example.myapplication.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -10,8 +10,8 @@ class AlertReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         val notificationHelper = NotificationHelper(context,intent)
-        val nb: NotificationCompat.Builder = notificationHelper.channelNotification
-        notificationHelper.manager?.notify(1, nb.build())
+        val nc: NotificationCompat.Builder = notificationHelper.channelNotification
+        notificationHelper.manager?.notify(1, nc.build())
 
     }
 }

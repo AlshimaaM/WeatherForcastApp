@@ -21,19 +21,16 @@ class DialogActivity : AppCompatActivity() {
     private lateinit var ringtone: Ringtone
     var event = ""
     var desc = ""
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dialog)
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
         ringtone = RingtoneManager.getRingtone(applicationContext, notification)
         if (intent.extras != null) {
-           // senderName = intent.getStringExtra("sender_name").toString()
             event = intent.getStringExtra("event").toString()
             desc = intent.getStringExtra("desc").toString()
             showDialogAlart()
         }
-
     }
 
     @SuppressLint("SetTextI18n")

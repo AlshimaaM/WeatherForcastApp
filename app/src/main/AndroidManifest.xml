@@ -35,13 +35,13 @@
         <activity
             android:name=".view.activity.MainActivity"/>
         <receiver
-            android:name="com.example.FinalProject2.data.receiver.DialogReceiver"
+            android:name="com.example.myapplication.receiver.DialogReceiver"
             android:enabled="true"
             android:exported="true">
 
         </receiver>
         <receiver
-            android:name="com.example.FinalProject2.data.receiver.AlertReceiver"
+            android:name="com.example.myapplication.receiver.AlertReceiver"
             android:enabled="true"
             android:exported="true">
 

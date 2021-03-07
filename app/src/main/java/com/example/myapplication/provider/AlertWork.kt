@@ -1,4 +1,4 @@
-package com.example.myapplication.util
+package com.example.myapplication.provider
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -8,16 +8,15 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.example.FinalProject2.data.receiver.AlertReceiver
 import com.example.myapplication.data.remote.RetrofitInstance
 import com.example.myapplication.data.remote.RetrofitInstance.formateTime
 import com.example.myapplication.model.AlertsItem
 import com.example.myapplication.model.Model
+import com.example.myapplication.receiver.AlertReceiver
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import java.util.*
@@ -30,8 +29,7 @@ class AlertWork(context: Context, workerParams: WorkerParameters) :
     private var lon: String? = null
     private var lang: String? = null
     private var units: String? = null
-    private var windSpeed: String? = null
-    private val mCtx = context
+    private val mcontext = context
     private var requestCodeList = ArrayList<Int>()
     private val gson = Gson()
     private lateinit var alarmManager: AlarmManager
@@ -51,20 +49,18 @@ class AlertWork(context: Context, workerParams: WorkerParameters) :
         return Result.success()
     }
 
+    @SuppressLint("CommitPrefEdits")
     fun init() {
-        alarmManager = mCtx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        sharedPreferences = mCtx.getSharedPreferences(
-            "prefs",
-            Context.MODE_PRIVATE
-        )
+        alarmManager = mcontext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        sharedPreferences = mcontext.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         editor = sharedPreferences.edit()
 
     }
 
     @SuppressLint("SimpleDateFormat")
     fun setAlarm(alerts: List<AlertsItem>) {
-        val sdf = java.text.SimpleDateFormat("EEE, h:mm a")
-        if (alerts.size > 0) {
+         java.text.SimpleDateFormat("EEE, h:mm a")
+        if (alerts.isNotEmpty()) {
             for (alertItem in alerts) {
                 val now = System.currentTimeMillis()
                 if (alertItem.start > now / 1000) {
@@ -115,17 +111,17 @@ class AlertWork(context: Context, workerParams: WorkerParameters) :
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun setNotification(startTime: Int, event: String, description: String) {
-        val intent = Intent(mCtx, AlertReceiver::class.java)
+        val intent = Intent(mcontext, AlertReceiver::class.java)
         intent.putExtra("event", event)
         intent.putExtra("desc", description)
         val random = Random()
-        val i1 = random.nextInt(99)
+        val int1 = random.nextInt(99)
 
-        val pendingIntent = PendingIntent.getBroadcast(mCtx, i1, intent, 0)
-        requestCodeList.add(i1)
+        val pendingIntent = PendingIntent.getBroadcast(mcontext, int1, intent, 0)
+        requestCodeList.add(int1)
         val alertTime: Long = startTime.toLong()
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, alertTime, pendingIntent)
-        mCtx.registerReceiver(AlertReceiver(), IntentFilter())
+        mcontext.registerReceiver(AlertReceiver(), IntentFilter())
     }
 }

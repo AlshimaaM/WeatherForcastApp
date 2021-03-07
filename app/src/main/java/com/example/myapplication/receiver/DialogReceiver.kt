@@ -1,4 +1,4 @@
-package com.example.FinalProject2.data.receiver
+package com.example.myapplication.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -11,7 +11,7 @@ class DialogReceiver : BroadcastReceiver() {
         val i = Intent(context, DialogActivity::class.java)
         i.putExtra("event", intent.getStringExtra("event"))
         i.putExtra("desc", intent.getStringExtra("desc"))
-       i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(i)
 
     }

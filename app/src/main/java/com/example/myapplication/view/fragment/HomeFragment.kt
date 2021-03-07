@@ -29,9 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.*
 import com.bumptech.glide.Glide
-import com.example.FinalProject2.data.receiver.AlertReceiver
 import com.example.myapplication.R
-import com.example.myapplication.SharedPrefrence
 import com.example.myapplication.adapter.DayAdapter
 import com.example.myapplication.adapter.HoursAdapter
 import com.example.myapplication.data.local.database.entity.DaysEntity
@@ -40,8 +38,8 @@ import com.example.myapplication.data.remote.RetrofitInstance
 import com.example.myapplication.data.remote.RetrofitInstance.getImage
 import com.example.myapplication.databinding.FragmentHomeBinding
 import com.example.myapplication.provider.Setting
-import com.example.myapplication.util.AlertWork
-import com.example.myapplication.util.ContextUtils.Companion.setLocal
+import com.example.myapplication.provider.AlertWork
+import com.example.myapplication.receiver.AlertReceiver
 import com.example.myapplication.util.ContextUtils.Companion.settings
 import com.example.myapplication.viewmodel.WeatherViewModel
 import com.google.android.gms.location.*

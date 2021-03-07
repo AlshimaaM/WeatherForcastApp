@@ -23,7 +23,7 @@ class NotificationHelper(base: Context?, intent: Intent) : ContextWrapper(base) 
             NotificationManager.IMPORTANCE_HIGH
         )
         channel.enableLights(true)
-        channel.setLightColor(Color.RED)
+        channel.lightColor = Color.GREEN
         channel.enableVibration(true)
         manager!!.createNotificationChannel(channel)
     }
@@ -38,8 +38,8 @@ class NotificationHelper(base: Context?, intent: Intent) : ContextWrapper(base) 
     val channelNotification: NotificationCompat.Builder
         get() = NotificationCompat.Builder(
             applicationContext, channelID)
-            .setContentTitle("Alert")
-            .setContentText(intent.getStringExtra("event") + " " + intent.getStringExtra("desc"))
+            .setContentTitle(getString(R.string.about))
+            .setContentText(intent.getStringExtra("event") + " /n " + intent.getStringExtra("desc"))
             .setSmallIcon(R.drawable.ic_alerts)
 
     companion object {
