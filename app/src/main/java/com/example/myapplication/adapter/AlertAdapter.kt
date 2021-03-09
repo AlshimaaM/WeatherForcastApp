@@ -29,11 +29,10 @@ class AlertAdapter (val context: Context) : RecyclerView.Adapter<AlertAdapter.Vi
     }
     override fun onBindViewHolder(holder: AlertAdapter.ViewHolder, position: Int) {
         holder.time.text = alertList[position].start
+        holder.eventType.text = alertList[position].event
 
     }
-    /*
-  SetUp Of Delete Item
-   */
+
     fun getItemByVH(viewHolder: RecyclerView.ViewHolder): AlertEntity {
         return alertList.get(viewHolder.adapterPosition)
     }
@@ -45,6 +44,7 @@ class AlertAdapter (val context: Context) : RecyclerView.Adapter<AlertAdapter.Vi
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         val time = itemView.findViewById(R.id.time) as TextView
+        val eventType = itemView.findViewById(R.id.event_type) as TextView
 
 
     }

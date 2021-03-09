@@ -3,6 +3,7 @@ package com.example.myapplication.viewmodel
 import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
+import android.util.Log
 import androidx.lifecycle.*
 import com.example.myapplication.data.local.database.entity.DaysEntity
 import com.example.myapplication.data.local.database.entity.HoursEntity

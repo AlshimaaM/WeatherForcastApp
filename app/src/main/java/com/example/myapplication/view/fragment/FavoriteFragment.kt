@@ -80,19 +80,14 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         favData =ArrayList()
         favAdapter = FavouritAdapter()
         favAdapter.setOnItemClickListener(this)
-        if (favAdapter.getItemCount()>0){
-            binding.emptyList.visibility=View.GONE
-            binding.txtEmpty.visibility=View.GONE
-        } else {
-            binding.emptyList.visibility=View.VISIBLE
-            binding.txtEmpty.visibility=View.VISIBLE
-        }
+
         binding.btnFab.setOnClickListener({
             Navigation.findNavController(it).navigate(R.id.action_favoriteFragment_to_mapsFragment)
 
         })
     }
     fun viewWeatherFav(latitude: String, longitude: String) {
+        ContextUtils.setLocale(requireActivity(), Setting.languageSystem)
         weathetViewModel.fetchweather(latitude, longitude).observe(viewLifecycleOwner, Observer {
             var favouritDatabase = viewModel.dataInDatabase(it)
             uiScope.launch {
@@ -107,6 +102,13 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
     fun dataFromDatabase() {
         viewModel.getFavoriteFromDB(requireContext()).observe(viewLifecycleOwner, Observer {
             it?.let {
+                if (it.size>0){
+                    binding.emptyList.visibility=View.GONE
+                    binding.txtEmpty.visibility=View.GONE
+                } else {
+                    binding.emptyList.visibility=View.VISIBLE
+                    binding.txtEmpty.visibility=View.VISIBLE
+                }
                 favData = it
                 favAdapter.setData(it, requireContext())
                 binding.favRecycle.adapter = favAdapter
@@ -133,22 +135,21 @@ class FavoriteFragment : Fragment(), FavouritAdapter.OnItemClickListener  {
         itemTouchHelper.attachToRecyclerView(binding.favRecycle)
     }
 
-    fun openDialog(context: Context?, trip: FavouritEntity?, viewHolder: RecyclerView.ViewHolder) {
+    fun openDialog(context: Context?, cityFav: FavouritEntity?, viewHolder: RecyclerView.ViewHolder) {
         val position = viewHolder.adapterPosition
 
         val builder1 = AlertDialog.Builder(context)
-        builder1.setTitle("Are you sure delete trip " + trip?.city.toString() + " ? ")
+        builder1.setTitle(getString(R.string.sure_delet) + cityFav?.city.toString() + " ? ")
         builder1.setCancelable(false)
-        builder1.setPositiveButton("Ok") { dialog, which ->
+        builder1.setPositiveButton(getString(R.string.yes)) { dialog, which ->
            uiScope.launch {
                 try {
                     viewModel.deleteFav(favAdapter.getItem(position)!!, requireContext())
                 } catch (e: Exception) {
-                    Log.i("Remove", "onBindViewHolder: a" + e.message)
                 }
             }
         }
-        builder1.setNegativeButton("CANCEL") { dialog, which ->
+        builder1.setNegativeButton(getString(R.string.no)) { dialog, which ->
             if (context != null) {
                 favAdapter.setData(favData, context)
             }

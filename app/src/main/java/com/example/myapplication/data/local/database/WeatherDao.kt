@@ -12,6 +12,9 @@ interface WeatherDao {
     @Query("select * from weather_table where id = 0")
     fun getCurrentWeather(): LiveData<WeatherEntity>
 
+    @Query("select * from weather_table where id = 0")
+    fun getCurrentWeatherAlert(): WeatherEntity
+
     @Delete
     fun deletetWeather(weatherDatabase: WeatherEntity)
 

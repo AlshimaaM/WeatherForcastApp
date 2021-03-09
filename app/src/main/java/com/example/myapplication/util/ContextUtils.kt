@@ -24,40 +24,16 @@ class ContextUtils(base: Context) : ContextWrapper(base) {
             Toast.makeText(c, "Invalid Address", Toast.LENGTH_LONG).show()
         }
 
-        fun setLocal(activity: Activity, langCode: String?) {
-            val locale = Locale(langCode)
+         fun setLocale(activity: Activity, languageCode: String?) {
+            val locale = Locale(languageCode)
             Locale.setDefault(locale)
-            /*   val resources = activity.resources
-            val config = resources.configuration
+            val resources: Resources = activity.resources
+            val config: Configuration = resources.configuration
             config.setLocale(locale)
-            resources.updateConfiguration(config, resources.displayMetrics)*/
-            val config = Configuration()
-            config.locale = locale
-            activity.resources.updateConfiguration(config, null)
+            resources.updateConfiguration(config, resources.displayMetrics)
         }
 
-        fun changeLang(
-                context: Context,
-                newLocale: Locale?
-        ): ContextWrapper {
-            var context = context
-            val res = context.resources
-            val configuration = res.configuration
-            if (Build.VERSION.SDK_INT >= 24) {
-                configuration.setLocale(newLocale)
-                val localeList = LocaleList(newLocale)
-                LocaleList.setDefault(localeList)
-                configuration.setLocales(localeList)
-                context = context.createConfigurationContext(configuration)
-            } else if (Build.VERSION.SDK_INT >= 17) {
-                configuration.setLocale(newLocale)
-                context = context.createConfigurationContext(configuration)
-            } else {
-                configuration.locale = newLocale
-                res.updateConfiguration(configuration, res.displayMetrics)
-            }
-            return ContextWrapper(context)
-        }
+
         fun updateLocalization(c: Context, localeToSwitchTo: Locale): ContextWrapper {
             var context = c
             val resources: Resources = context.resources

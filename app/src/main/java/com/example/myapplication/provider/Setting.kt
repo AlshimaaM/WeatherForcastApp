@@ -15,19 +15,4 @@ object Setting {
         var mapLongitude:String=""
         var mapLocation:Boolean=false
 
-        private lateinit var mSharedPreferences: SharedPreferences
-        private const val pref_file = "settings"
-
-        fun setLocalLanguage(language: String, mContext: Context): Boolean {
-                mSharedPreferences = mContext.applicationContext.getSharedPreferences(pref_file, Context.MODE_PRIVATE)
-                val editor: SharedPreferences.Editor = mSharedPreferences.edit()
-                editor.putString("lang", language)
-                return editor.commit()
-        }
-
-        fun getLocalLanguage(mContext: Context): String? {
-                mSharedPreferences = mContext.applicationContext.getSharedPreferences(pref_file, Context.MODE_PRIVATE)
-                return mSharedPreferences.getString("lang", "ar")
-        }
-
 }

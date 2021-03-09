@@ -22,12 +22,12 @@
     <string name="more_details_about_weather">More Details About Weather</string>
     <string name="_24_hour">Weather 24-Hours</string>
     <string name="_7_day_frecast">7-Day Forcast</string>
-    <string name="notification_and_alert">"Notification and Alert</string>
 
     <string name="google_maps_key">AIzaSyAb_pEfMn2JMapUUFoiQttujJk7CnIGf-A</string>
+    <string name="notification_and_alert">"Notification and Alert</string>
     <string name="enter_city_name">Enter City Name</string>
     <string name="add">Add</string>
-    <string name="empty_list">Not Favorite yet Tab to Button To Add</string>
+    <string name="empty_list">Not Favorite List yet Tab to Button To Add</string>
 
     <string name="error">error</string>
     <string name="added">Added!</string>
@@ -39,4 +39,23 @@
     <string name="yes">Yes</string>
     <string name="invalid">Invalide Data</string>
     <string name="about">About Weather</string>
+    <string name="loading">Data Loading</string>
+    <string name="loc_not_enable">Location Not enable</string>
+    <string name="location_dialog_message">To load the current accurate temperature you have to enable location</string>
+    <string name="enable">Enable</string>
+    <string name="sure_delet">Are you sure delete "</string>
+    <string name="show_alert">Show Notification Alert when weather is dangerous</string>
+    <string name="notific">Notification Alert</string>
+    <string name="add_alert">Add Alert</string>
+    <string name="notification">notification</string>
+    <string name="alarm">alarm</string>
+    <string name="type_of_event">Type Of Event</string>
+    <string name="snow">Snow </string>
+    <string name="thunderstorm">Thunderstorm</string>
+    <string name="fog">mist/fog</string>
+    <string name="rain">Rain</string>
+    <string name="location_from_map">Location from map</string>
+    <string name="map_loc">Map Location</string>
+    <string name="enter_date">Enter Date</string>
+    <string name="enter_time">Enter Time</string>
 </resources>

@@ -2,10 +2,8 @@ package com.example.myapplication.data.repositry
 
 import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.myapplication.SharedPrefrence
 import com.example.myapplication.data.local.database.WeatherDatabaseInstance
 import com.example.myapplication.data.local.database.entity.AlertEntity
 import com.example.myapplication.data.local.database.entity.FavouritEntity
@@ -13,6 +11,7 @@ import com.example.myapplication.data.local.database.entity.WeatherEntity
 import com.example.myapplication.data.remote.RetrofitInstance
 import com.example.myapplication.model.Model
 import com.example.myapplication.provider.Setting
+import com.example.myapplication.util.Constant.convertArabic
 import kotlinx.coroutines.*
 import java.lang.Exception
 
@@ -22,9 +21,15 @@ class WeatherRepositiry(application: Application) {
     fun getWeather(latitude: String, longitude: String): MutableLiveData<Model> {
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                var latt :String?= latitude
+                var lonn :String?=longitude
+          if (Setting.languageSystem.equals("ar")){
+              latt =convertArabic(latitude)
+              lonn =convertArabic(longitude)
+          }
                 val response = RetrofitInstance.getCurrentLocationweather(
-                    latitude,
-                    longitude,
+                    latt!!,
+                    lonn!!,
                    Setting.languageSystem,
                    Setting.unitSystem
                 ).execute()
@@ -84,7 +89,11 @@ class WeatherRepositiry(application: Application) {
         val database = WeatherDatabaseInstance.getInstance(context)
         return database.alertDao().getAlerts()
     }
-
+    fun getAlertAlerm(context: Context): WeatherEntity {
+        val database = WeatherDatabaseInstance.getInstance(context)
+        return database.weatherDao().getCurrentWeatherAlert()
+        //coroutine
+    }
     fun deleteAlert(alertDatabase: AlertEntity,context: Context) {
         val database = WeatherDatabaseInstance.getInstance(context)
         CoroutineScope(Dispatchers.IO).launch  {

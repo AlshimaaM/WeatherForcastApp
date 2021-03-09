@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.myapplication.R
-import com.example.myapplication.SharedPrefrence
 import com.example.myapplication.adapter.DayAdapter
 import com.example.myapplication.adapter.HoursAdapter
 import com.example.myapplication.data.local.database.entity.DaysEntity
@@ -22,6 +21,7 @@ import com.example.myapplication.data.remote.RetrofitInstance
 import com.example.myapplication.databinding.FragmentFavoriteDetailsBinding
 import com.example.myapplication.provider.Setting
 import com.example.myapplication.util.ContextUtils
+import com.example.myapplication.util.ContextUtils.Companion.setLocale
 import com.example.myapplication.util.ContextUtils.Companion.settings
 
 class FavoriteDetailsFragment : Fragment() {
@@ -30,19 +30,14 @@ class FavoriteDetailsFragment : Fragment() {
     private lateinit var hour : HoursAdapter
     private lateinit var binding : FragmentFavoriteDetailsBinding
     private lateinit var icon : String
-  //  private lateinit var shared : SharedPrefrence
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             favoriteItem = it.getParcelable<FavouritEntity>("favoriteItem")!!
-
-        /*    activity?.let {
-                ContextUtils.setLocal(
-                        it,
-                        Setting.getLocalLanguage(requireContext())
-                )
-            }*/
+            activity?.let {
+                ContextUtils.setLocale(it, Setting.languageSystem)
+            }
         }
     }
 
@@ -57,6 +52,7 @@ class FavoriteDetailsFragment : Fragment() {
         hour = HoursAdapter()
         daily = DayAdapter()
         settings(requireContext())
+        setLocale(requireActivity(),Setting.languageSystem)
         favoriteItem?.let{
             var sharedPreferences= PreferenceManager.getDefaultSharedPreferences(context)
             if (sharedPreferences.getString("UNIT_SYSTEM","metric").equals("metric")) {
@@ -69,13 +65,6 @@ class FavoriteDetailsFragment : Fragment() {
                 binding.tempreture.text =favoriteItem!!.temp.toString() + "°F"
                 binding.wind.text = favoriteItem!!.wind_speed.toString()+ " " +"m/h"
             }
-           /* if (shared.units.equals("metric")) {
-                binding.tempreture.text = favoriteItem!!.temp.toString() + "°C"
-            }else if (shared.units.equals("standard")) {
-                binding.tempreture.text = favoriteItem!!.temp.toString() + "°K"
-            }else {
-                binding.tempreture.text = favoriteItem!!.temp.toString() + "°F"
-            }*/
             binding.pressure.text = favoriteItem!!.pressure.toString()+ " hpa"
             binding.dateHome.text = "${RetrofitInstance.dateNow}"
             binding.humidity.text =favoriteItem!!.humidity.toString() + "%"

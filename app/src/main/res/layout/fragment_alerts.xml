@@ -39,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:checked="true"
-                    android:text="notification"
+                    android:text="@string/notification"
                     android:textSize="18sp" />
 
                 <RadioButton
@@ -47,9 +47,45 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="alarm"
+                    android:text="@string/alarm"
                     android:textSize="18sp" />
             </RadioGroup>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <TextView
+                        android:id="@+id/txt_event"
+                        android:gravity="start|center"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginEnd="30dp"
+                        android:layout_weight="1"
+                        android:text="@string/type_of_event"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:textColor="@android:color/black"
+                        android:layout_marginRight="8dp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_event"
+                        android:gravity="start|center"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="30dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:textColor="@android:color/black" />
+
+                </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
@@ -69,7 +105,7 @@
                     android:layout_marginEnd="30dp"
                     android:layout_weight="1"
                     android:background="@drawable/background_put_subject"
-                    android:hint="Enter Date"
+                    android:hint="@string/enter_date"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
                     android:textColor="@android:color/black"
@@ -86,7 +122,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_weight="1"
                     android:background="@drawable/background_put_subject"
-                    android:hint="Enter Time"
+                    android:hint="@string/enter_time"
                     android:layout_marginEnd="30dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
@@ -111,7 +147,7 @@
             android:backgroundTint="@color/light_red"
             android:gravity="center"
             android:shadowRadius="@android:integer/config_shortAnimTime"
-            android:text="Add Alert"
+            android:text="@string/add_alert"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

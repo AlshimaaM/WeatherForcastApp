@@ -85,7 +85,8 @@ dependencies {
     implementation "com.airbnb.android:lottie:$lottieVersion"
     implementation "androidx.multidex:multidex:2.0.1"
 
-
+// Loading
+    implementation 'com.victor:lib:1.0.4'
     //room
    // def room_version = "2.2.6"
     kapt "androidx.room:room-compiler:$room_version"

@@ -30,10 +30,8 @@ class MapFragment : Fragment() , GoogleMap.OnMapClickListener {
     lateinit var search: Button
     private val callback = OnMapReadyCallback { googleMap ->
         this.mMap=googleMap
+        mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
         mMap.setOnMapClickListener(this)
-        val eg = LatLng(26.8206, 30.8025)
-        mMap.addMarker(MarkerOptions().position(eg).title("Marker in Egypt"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(eg))
     }
     override fun onCreateView(
         inflater: LayoutInflater,

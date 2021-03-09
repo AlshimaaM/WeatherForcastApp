@@ -40,7 +40,9 @@ import com.example.myapplication.databinding.FragmentHomeBinding
 import com.example.myapplication.provider.Setting
 import com.example.myapplication.provider.AlertWork
 import com.example.myapplication.receiver.AlertReceiver
+import com.example.myapplication.util.ContextUtils.Companion.setLocale
 import com.example.myapplication.util.ContextUtils.Companion.settings
+import com.example.myapplication.util.Dialogs
 import com.example.myapplication.viewmodel.WeatherViewModel
 import com.google.android.gms.location.*
 import com.google.gson.Gson
@@ -62,17 +64,13 @@ class HomeFragment :  Fragment() {
     private lateinit var editor: SharedPreferences.Editor
     private val CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084
     lateinit var mFusedLocationClient: FusedLocationProviderClient
-   // private lateinit var shared : SharedPrefrence
+    private lateinit var mProgress: Dialog
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.IO + job)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /*activity?.let {
-            setLocal(
-                    it,
-                    Setting.getLocalLanguage(requireContext()))
-        }*/
+
     }
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -101,13 +99,13 @@ class HomeFragment :  Fragment() {
         }
 
    fun init(){
+       mProgress = Dialogs.createProgressBarDialog(context, "")
        binding.hoursRecyclerview.layoutManager =
                LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
        binding.daysRecyclerview.layoutManager =
                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
        hoursAdapter = HoursAdapter()
        dayAdapter = DayAdapter()
-       //shared= SharedPrefrence(requireContext())
        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
        prefs = requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
        editor = sharedPreferences.edit()
@@ -115,9 +113,9 @@ class HomeFragment :  Fragment() {
        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
        workManager = WorkManager.getInstance(requireContext())
        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(
-                       requireContext()
-               )
-       ) {
+                       requireContext())
+       )
+       {
            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                    Uri.parse("package:" + requireActivity().getPackageName())
            )
@@ -211,18 +209,9 @@ class HomeFragment :  Fragment() {
     }
     @SuppressLint("SetTextI18n")
     fun readFromDatabase() {
+       // mProgress.show()
         homeViewModel.getWeather(requireContext()).observe(viewLifecycleOwner, Observer {
-           /*   if (it==null){
-                firstTime()
-            }else {*/
             it?.let {
-            /*    if (shared.units.equals("metric")) {
-                binding.tempreture.text = it.tempture.toString() + "°C"
-            }else if (shared.units.equals("standard")) {
-                binding.tempreture.text = it.tempture.toString() + "°K"
-            } else {
-                binding.tempreture.text = it.tempture.toString() + "°F"
-            }*/
                     if (sharedPreferences.getString("UNIT_SYSTEM","metric").equals("metric")) {
                     binding.tempreture.text = it.tempture.toString() + "°C"
                         binding.wind.text = it.wind_speed.toString()+ " " +"m/s"
@@ -254,17 +243,20 @@ class HomeFragment :  Fragment() {
 
                 }
             }
-     //   }
+           // mProgress.dismiss()
         })
     }
 
     fun viewWeather(latitude: String, longitude: String) {
+     //   mProgress.show()
+        setLocale(requireActivity(),Setting.languageSystem)
         homeViewModel.fetchweather(latitude, longitude).observe(viewLifecycleOwner, Observer {
             var weatherDatabase =homeViewModel.writeIntoDatabase(it)
             uiScope.launch {
                 homeViewModel.weatherDatabase(weatherDatabase, requireContext())
                 withContext(Dispatchers.Main) {
                     readFromDatabase()
+                  //  mProgress.dismiss()
                 }
             }
         })
@@ -283,9 +275,7 @@ class HomeFragment :  Fragment() {
 
             if (Gson().fromJson<List<Int>>(requestCodeListJson, type) != null) {
                 var requestCodeList: List<Int> = Gson().fromJson(requestCodeListJson, type)
-                Log.v("cancel", requestCodeListJson.toString())
                 for (requestCodeItem in requestCodeList) {
-                    Log.v("cancel", "cancel")
                     cancelAlarm(requestCodeItem)
 
                 }
@@ -306,9 +296,7 @@ class HomeFragment :  Fragment() {
     }
 
     private fun setUpFetchFromApiWorker() {
-        val data: Data = Data.Builder().putString("lat", Setting.latitude).putString(
-            "lon",
-            Setting.longitude
+        val data: Data = Data.Builder().putString("lat", Setting.latitude).putString("lon", Setting.longitude
         ).putString("lang", Setting.languageSystem).putString("units", Setting.unitSystem)
             .build()
         val constrains = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
@@ -321,56 +309,17 @@ class HomeFragment :  Fragment() {
             .setInputData(data)
             .build()
         workManager.enqueue(repeatingRequest)
-        workManager.getWorkInfoByIdLiveData(repeatingRequest.id).observe(
-            viewLifecycleOwner,
+        workManager.getWorkInfoByIdLiveData(repeatingRequest.id).observe(viewLifecycleOwner,
             androidx.lifecycle.Observer {
             })
     }
-  /*  private fun settings() {
-        val unitSystem = sharedPreferences.getString("UNIT_SYSTEM", "")
-        val languageSystem = sharedPreferences.getString("LANGUAGE_SYSTEM", "")
-        val location1 = sharedPreferences.getBoolean("USE_DEVICE_LOCATION", false)
-        val locations = sharedPreferences.getString("CUSTOM_LOCATION", "")
-        val mapLocation = sharedPreferences.getBoolean("MAP_LOCATION", false)
-
-        if (unitSystem != null) {
-            Setting.unitSystem = unitSystem
-        }
-        if (languageSystem != null) {
-            Setting.languageSystem = languageSystem
-        }
-        if (location1 != null) {
-            Setting.deviceLocation = location1
-        }
-        if (locations != null) {
-            Setting.customLocations = locations
-        }
-        Setting.mapLocation = mapLocation!!
-    }*/
-
     private fun locationNotEnable() {
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
-        alertDialogBuilder.setTitle("Location Not enable")
-        alertDialogBuilder.setMessage("To load the current accurate temperature you have to enable location")
-        alertDialogBuilder.setPositiveButton("Enable") { dialog, which ->
+        alertDialogBuilder.setTitle(getString(R.string.loc_not_enable))
+        alertDialogBuilder.setMessage(getString(R.string.location_dialog_message))
+        alertDialogBuilder.setPositiveButton(getString(R.string.enable)) { dialog, which ->
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             ActivityCompat.startActivityForResult(requireActivity(), intent, PERMISSION_ID, Bundle())
-            dialog.dismiss()
-        }
-        alertDialogBuilder.setNegativeButton("Load From Last Location Known") {dialog, which ->
-                readFromDatabase()
-            dialog.dismiss()
-        }
-        alertDialogBuilder.setCancelable(false)
-        alertDialogBuilder.show()
-    }
-    private fun firstTime() {
-        val alertDialogBuilder = AlertDialog.Builder(requireContext())
-        alertDialogBuilder.setTitle("There is No data")
-        alertDialogBuilder.setMessage("Because This is first time you should enable location to show data")
-        alertDialogBuilder.setPositiveButton("Enable") { dialog, which ->
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            ActivityCompat.startActivityForResult(context as Activity, intent, PERMISSION_ID, Bundle())
             dialog.dismiss()
         }
         alertDialogBuilder.setCancelable(false)
@@ -382,14 +331,13 @@ class HomeFragment :  Fragment() {
             getLastLocation()
         }
     }
-
+*/
     override fun onResume() {
         super.onResume()
         if (checkPermissions()){
-          //  viewWeather(Setting.latitude,Setting.longitude)
-            getLastLocation()
+            viewWeather(Setting.latitude,Setting.longitude)
         }
-    }*/
+    }
  override fun onDestroy() {
      super.onDestroy()
      job.cancel()

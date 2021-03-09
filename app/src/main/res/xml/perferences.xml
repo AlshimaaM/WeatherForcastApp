@@ -13,8 +13,8 @@
         app:defaultValue="false"
         app:dependency="USE_DEVICE_LOCATION"
         app:key="MAP_LOCATION"
-        app:summary="Location from map"
-        app:title="Map Location" />
+        app:summary="@string/location_from_map"
+        app:title="@string/map_loc" />
         <EditTextPreference
             app:key="CUSTOM_LOCATION"
             app:title="@string/location"
@@ -27,15 +27,15 @@
     <SwitchPreference
         app:defaultValue="true"
         app:key="ALERT"
-        app:summary="Notification Alert"
-        app:title="Notification Alert" />
+        app:summary="@string/show_alert"
+        app:title="@string/notific" />
     </PreferenceCategory>
 
 
     <PreferenceCategory app:title="@string/units"
         app:icon="@drawable/ic_unit">
         <ListPreference
-            app:defaultValue="metric"
+            app:defaultValue="standard"
             app:entries="@array/unitSystemEntries"
             app:entryValues="@array/unitSystemValues"
             app:key="UNIT_SYSTEM"
@@ -52,7 +52,7 @@
             app:entries="@array/langSystemEntries"
             app:entryValues="@array/langSystemValues"
             app:key="LANGUAGE_SYSTEM"
-            app:defaultValue="ar"
+            app:defaultValue="en"
             app:title="@string/lang_system"
             app:summary="@string/land_support"/>
     </PreferenceCategory>

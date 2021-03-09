@@ -1,25 +1,15 @@
 package com.example.myapplication.view.activity
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.multidex.MultiDex
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.example.myapplication.R
-import com.example.myapplication.provider.Setting
-import com.example.myapplication.util.ContextUtils
-import com.example.myapplication.util.ContextUtils.Companion.changeLang
-import com.example.myapplication.util.ContextUtils.Companion.setLocal
 import com.example.myapplication.util.ContextUtils.Companion.updateLocalization
 import java.util.*
 /*

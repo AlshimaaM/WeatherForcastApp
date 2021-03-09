@@ -39,9 +39,8 @@ class MapSettingFragment : Fragment() , GoogleMap.OnMapClickListener {
     private val callback = OnMapReadyCallback { googleMap ->
         this.mMap=googleMap
         mMap.setOnMapClickListener(this)
-        val eg = LatLng(26.8206, 30.8025)
-        mMap.addMarker(MarkerOptions().position(eg).title("Marker in Egypt"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(eg))
+        mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+
     }
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,6 +53,7 @@ class MapSettingFragment : Fragment() , GoogleMap.OnMapClickListener {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
+        val fMap:MapFragment=MapFragment()
         locationSearch=view.findViewById(R.id.editText)
         search=view.findViewById(R.id.btn_search)
         search.setOnClickListener({ findCity()})
@@ -61,10 +61,7 @@ class MapSettingFragment : Fragment() , GoogleMap.OnMapClickListener {
         geocoder = Geocoder(context)
     }
     private fun init() {
-        sharedPreferences = requireActivity().getSharedPreferences(
-                "prefs",
-                Context.MODE_PRIVATE
-        )
+        sharedPreferences = requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
         editor = sharedPreferences.edit()
     }
     fun findCity() {

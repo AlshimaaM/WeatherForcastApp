@@ -17,11 +17,7 @@ class NotificationHelper(base: Context?, intent: Intent) : ContextWrapper(base) 
 
     @TargetApi(Build.VERSION_CODES.O)
     private fun createChannel() {
-        val channel = NotificationChannel(
-            channelID,
-            channelName,
-            NotificationManager.IMPORTANCE_HIGH
-        )
+        val channel = NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_HIGH)
         channel.enableLights(true)
         channel.lightColor = Color.GREEN
         channel.enableVibration(true)
@@ -39,8 +35,8 @@ class NotificationHelper(base: Context?, intent: Intent) : ContextWrapper(base) 
         get() = NotificationCompat.Builder(
             applicationContext, channelID)
             .setContentTitle(getString(R.string.about))
-            .setContentText(intent.getStringExtra("event") + " /n " + intent.getStringExtra("desc"))
-            .setSmallIcon(R.drawable.ic_alerts)
+            .setContentText(intent.getStringExtra("event") + "    " + intent.getStringExtra("desc"))
+            .setSmallIcon(R.drawable.logo2)
 
     companion object {
         const val channelID = "channelID"

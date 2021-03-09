@@ -54,6 +54,5 @@ object RetrofitInstance {
         val date = Date()
         date.time = format.toLong() * 1000
         return dateFormat.format(date)
-
     }
 }

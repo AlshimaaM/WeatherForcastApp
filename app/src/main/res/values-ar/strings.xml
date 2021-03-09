@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Project</string>
+    <string name="app_name">الطقس</string>
     <string name="title_home">الصفحه الرئيسيه</string>
     <string name="title_fav">المفضله</string>
     <string name="title_alert">التنبيهات</string>
@@ -23,4 +23,39 @@
     <string name="more_details_about_weather">تفاصيل أكثر عن الطقس</string>
     <string name="_24_hour">الطقس 24-ساعه</string>
     <string name="_7_day_frecast">توقعات 7-أيام قادمه</string>
+    <string name="notification_and_alert">الإشعارات والتنبيهات</string>
+    <string name="enter_city_name">ادخل اسم المدينه</string>
+    <string name="add">إضافه</string>
+    <string name="empty_list">لا يوجد قائمه مفضلات بعد اضغت علي الزر للإضافه</string>
+
+    <string name="error">خطأ</string>
+    <string name="added">تم الإضافه!</string>
+    <string name="please">من فضلك ادخل بيانات صالحه</string>
+    <string name="noThing">لا شئ</string>
+    <string name="niceDay">يوم جيد</string>
+    <string name="deletAlert">هل تريد حذف هذا التنبيه</string>
+    <string name="no">لا</string>
+    <string name="yes">نعم</string>
+    <string name="invalid">بيانات غير صالحه</string>
+    <string name="about">عن الطقس</string>
+    <string name="loading">جار التحميل</string>
+    <string name="loc_not_enable">الموقع غير مفعّل</string>
+    <string name="location_dialog_message">لكي تعرف الطقس حاليا عن موقعك يجب ان تفعّله</string>
+    <string name="enable">تفعيل</string>
+    <string name="sure_delet">هل انت متأكد من حذف</string>
+    <string name="show_alert">اظهار إشعارات تنبيه عندما يكون الطقس شديد</string>
+    <string name="notific">إشعارات التنبيه</string>
+    <string name="add_alert">إضافه التنبيه</string>
+    <string name="notification">إشعار</string>
+    <string name="alarm">تنبيه</string>
+    <string name="type_of_event">نوع الحدث</string>
+    <string name="snow">ثلج</string>
+    <string name="thunderstorm">عاصفه رعديه</string>
+    <string name="fog">ضباب</string>
+    <string name="rain">أمطار</string>
+    <string name="location_from_map">الموقع من الخريطه</string>
+    <string name="map_loc">الخريطه</string>
+    <string name="enter_date">ادخل التاريخ</string>
+    <string name="enter_time">ادخل الوقت</string>
+
 </resources>
