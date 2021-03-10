@@ -31,6 +31,7 @@ import com.example.myapplication.databinding.FragmentAlertsBinding
 import com.example.myapplication.model.AlertsItem
 import com.example.myapplication.receiver.AlertReceiver
 import com.example.myapplication.receiver.DialogReceiver
+import com.example.myapplication.util.Dialogs.cancelAlarm
 import com.example.myapplication.viewmodel.AlertsViewModel
 import com.example.myapplication.viewmodel.WeatherViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -207,9 +208,9 @@ class AlertsFragment : Fragment() {
         val intentA = Intent(context, AlertReceiver::class.java)
         intentA.putExtra("event", event)
         intentA.putExtra("desc", description)
-        val r = Random()
-        val i1 = r.nextInt(99)
-        val pendingIntentA = PendingIntent.getBroadcast(context, i1, intentA, 0)
+        val random = Random()
+        val int1 = random.nextInt(99)
+        val pendingIntentA = PendingIntent.getBroadcast(context, int1, intentA, 0)
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, hour)
         calendar.set(Calendar.MINUTE, min)
@@ -223,7 +224,7 @@ class AlertsFragment : Fragment() {
         requireActivity().registerReceiver(AlertReceiver(), IntentFilter())
         val date = "$day/$month/$year $hour:$min"
 
-        addAlert(i1, event, date, description, true)
+        addAlert(int1, event, date, description, true)
     }
     private fun getAlertFromDB() {
         alertViewModel.getAlert(requireContext()).observe(viewLifecycleOwner, {
@@ -338,7 +339,7 @@ class AlertsFragment : Fragment() {
                         getString(R.string.yes)
                     ) { dialog, id ->
                         val alertItemDeleted = alertAdapter.getItemByVH(viewHolder)
-                        cancelAlarm(alertItemDeleted.requestCode)
+                        cancelAlarm(requireContext(),alertItemDeleted.requestCode)
                         deleteAlertFromDB(alertItemDeleted)
                         alertAdapter.removeAlertItem(viewHolder)
                     }
@@ -354,12 +355,6 @@ class AlertsFragment : Fragment() {
         alertViewModel.deleteAlert(alertDB, requireContext())
     }
 
-    fun cancelAlarm(requestCode: Int) {
-        val intent = Intent(requireContext(), AlertReceiver::class.java)
-        val sender = PendingIntent.getBroadcast(context, requestCode, intent, 0)
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(sender)
-    }
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()

@@ -60,7 +60,6 @@ class ContextUtils(base: Context) : ContextWrapper(base) {
             val unitSystem = sharedPreferences.getString("UNIT_SYSTEM", "")
             val languageSystem = sharedPreferences.getString("LANGUAGE_SYSTEM", "")
             val location1 = sharedPreferences.getBoolean("USE_DEVICE_LOCATION", false)
-            val locations = sharedPreferences.getString("CUSTOM_LOCATION", "")
             val mapLocation = sharedPreferences.getBoolean("MAP_LOCATION", false)
 
             if (unitSystem != null) {
@@ -71,9 +70,6 @@ class ContextUtils(base: Context) : ContextWrapper(base) {
             }
             if (location1 != null) {
                 Setting.deviceLocation = location1
-            }
-            if (locations != null) {
-                Setting.customLocations = locations
             }
             Setting.mapLocation = mapLocation!!
         }

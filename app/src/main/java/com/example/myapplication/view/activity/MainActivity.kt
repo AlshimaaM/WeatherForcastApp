@@ -12,21 +12,12 @@ import androidx.preference.PreferenceManager
 import com.example.myapplication.R
 import com.example.myapplication.util.ContextUtils.Companion.updateLocalization
 import java.util.*
-/*
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("TAG", "LOCATION_PERMISSION_REQUEST_CODE111111 $requestCode")
-        val fragment = supportFragmentManager.findFragmentById(R.id.navigation_home)
-        fragment!!.onActivityResult(requestCode, resultCode, data)
-    }
-}*/
 class MainActivity : AppCompatActivity()  {
     private lateinit var bottom_nav: BottomNavigationView
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
-      //  setLocal(this, Setting.getLocalLanguage(this))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
@@ -38,9 +29,14 @@ class MainActivity : AppCompatActivity()  {
         return NavigationUI.navigateUp(navController,null)
     }
 
- /*   override fun attachBaseContext(newBase: Context) {
-        val context: Context = changeLang(newBase, Locale(Setting.getLocalLanguage(newBase)))
-        super.attachBaseContext(context)
+    /*
+
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            super.onActivityResult(requestCode, resultCode, data)
+            Log.d("TAG", "LOCATION_PERMISSION_REQUEST_CODE111111 $requestCode")
+            val fragment = supportFragmentManager.findFragmentById(R.id.navigation_home)
+            fragment!!.onActivityResult(requestCode, resultCode, data)
+        }
     }*/
     override fun attachBaseContext(newBase: Context?) {
 

@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import com.example.myapplication.R
@@ -27,7 +28,7 @@ class MapFragment : Fragment() , GoogleMap.OnMapClickListener {
     private lateinit var mMap : GoogleMap
     private lateinit var geocoder: Geocoder
     lateinit var locationSearch: EditText
-    lateinit var search: Button
+    lateinit var search: ImageView
     private val callback = OnMapReadyCallback { googleMap ->
         this.mMap=googleMap
         mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
@@ -43,8 +44,9 @@ class MapFragment : Fragment() , GoogleMap.OnMapClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         locationSearch=view.findViewById(R.id.editText)
-        search=view.findViewById(R.id.btn_search)
+        search=view.findViewById(R.id.img_search)
         search.setOnClickListener({ findCity()})
+
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)

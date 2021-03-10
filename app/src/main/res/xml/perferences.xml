@@ -15,12 +15,12 @@
         app:key="MAP_LOCATION"
         app:summary="@string/location_from_map"
         app:title="@string/map_loc" />
-        <EditTextPreference
+       <!-- <EditTextPreference
             app:key="CUSTOM_LOCATION"
             app:title="@string/location"
             app:summary="@string/location_disabled"
             app:defaultValue="Cairo"
-            app:dependency="USE_DEVICE_LOCATION" />
+            app:dependency="USE_DEVICE_LOCATION" />-->
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/notification_and_alert"
         app:icon="@drawable/ic_alerts">

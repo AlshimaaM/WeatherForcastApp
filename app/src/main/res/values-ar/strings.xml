@@ -20,9 +20,9 @@
     <string name="clouds">السحاب</string>
     <string name="pressure">الضغط</string>
     <string name="humidity">الرطوبه</string>
-    <string name="more_details_about_weather">تفاصيل أكثر عن الطقس</string>
+    <string name="more_details_about_weather"><u>تفاصيل أكثر عن الطقس</u></string>
     <string name="_24_hour">الطقس 24-ساعه</string>
-    <string name="_7_day_frecast">توقعات 7-أيام قادمه</string>
+    <string name="_7_day_frecast"><u>توقعات 7-أيام قادمه</u></string>
     <string name="notification_and_alert">الإشعارات والتنبيهات</string>
     <string name="enter_city_name">ادخل اسم المدينه</string>
     <string name="add">إضافه</string>
@@ -57,5 +57,7 @@
     <string name="map_loc">الخريطه</string>
     <string name="enter_date">ادخل التاريخ</string>
     <string name="enter_time">ادخل الوقت</string>
+    <string name="weather">الطقس</string>
+    <string name="add_new_location">اضف موقع جديد</string>
 
 </resources>

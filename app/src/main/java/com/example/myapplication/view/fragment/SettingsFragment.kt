@@ -31,7 +31,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             true
         }
-          //  editSettings()
+           editSettings()
         }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

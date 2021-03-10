@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
@@ -32,7 +33,7 @@ import java.io.IOException
 class MapSettingFragment : Fragment() , GoogleMap.OnMapClickListener {
     private lateinit var mMap : GoogleMap
     lateinit var locationSearch: EditText
-    lateinit var search: Button
+    lateinit var search: ImageView
     private lateinit var geocoder: Geocoder
     lateinit var sharedPreferences: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
@@ -55,7 +56,7 @@ class MapSettingFragment : Fragment() , GoogleMap.OnMapClickListener {
         mapFragment?.getMapAsync(callback)
         val fMap:MapFragment=MapFragment()
         locationSearch=view.findViewById(R.id.editText)
-        search=view.findViewById(R.id.btn_search)
+        search=view.findViewById(R.id.img_search)
         search.setOnClickListener({ findCity()})
 
         geocoder = Geocoder(context)

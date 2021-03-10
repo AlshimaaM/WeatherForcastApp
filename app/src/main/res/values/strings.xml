@@ -19,9 +19,9 @@
     <string name="clouds">Clouds</string>
     <string name="pressure">Pressure</string>
     <string name="humidity">Humidity</string>
-    <string name="more_details_about_weather">More Details About Weather</string>
+    <string name="more_details_about_weather"><u>More Details About Weather</u></string>
     <string name="_24_hour">Weather 24-Hours</string>
-    <string name="_7_day_frecast">7-Day Forcast</string>
+    <string name="_7_day_frecast"><u>7-Day Forcast</u></string>
 
     <string name="google_maps_key">AIzaSyAb_pEfMn2JMapUUFoiQttujJk7CnIGf-A</string>
     <string name="notification_and_alert">"Notification and Alert</string>
@@ -58,4 +58,6 @@
     <string name="map_loc">Map Location</string>
     <string name="enter_date">Enter Date</string>
     <string name="enter_time">Enter Time</string>
+    <string name="weather">Weather</string>
+    <string name="add_new_location">Add New Location</string>
 </resources>

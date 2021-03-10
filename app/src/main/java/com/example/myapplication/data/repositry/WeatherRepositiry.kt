@@ -17,7 +17,6 @@ import java.lang.Exception
 
 class WeatherRepositiry(application: Application) {
     private  var weatherMutableLiveData: MutableLiveData<Model> = MutableLiveData()
-  //  private val shared :SharedPrefrence= SharedPrefrence(application.applicationContext)
     fun getWeather(latitude: String, longitude: String): MutableLiveData<Model> {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -92,7 +91,6 @@ class WeatherRepositiry(application: Application) {
     fun getAlertAlerm(context: Context): WeatherEntity {
         val database = WeatherDatabaseInstance.getInstance(context)
         return database.weatherDao().getCurrentWeatherAlert()
-        //coroutine
     }
     fun deleteAlert(alertDatabase: AlertEntity,context: Context) {
         val database = WeatherDatabaseInstance.getInstance(context)

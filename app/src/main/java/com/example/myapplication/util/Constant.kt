@@ -8,7 +8,7 @@ object Constant {
     //d1047ca6aa05bdff768160b146f07e50
     //6998d940b9d8ba78db3acb3425a7cc91
     //517a14f849e519bb4fa84cdbd4755f56
-    val API_KEY = "d1047ca6aa05bdff768160b146f07e50"
+    val API_KEY = "26822bbe63971427ed0cb46fb5c21617"
     val BASE_URL = "https://api.openweathermap.org/data/2.5/"
 
     fun convertLongToDay(dayConvert: Int):String{

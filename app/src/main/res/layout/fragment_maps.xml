@@ -12,20 +12,37 @@
         android:orientation="horizontal">
 
         <EditText
-            android:layout_width="248dp"
-            android:layout_height="wrap_content"
             android:id="@+id/editText"
-            android:layout_weight="0.5"
-            android:inputType="textPersonName"
-            android:hint="@string/enter_city_name" />
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_search_tab"
+            android:gravity="center|start"
+            android:paddingStart="8dp"
+            android:hint="@string/add_new_location"
+            android:textSize="18sp"
+            tools:ignore="RtlSymmetry" />
 
-        <Button
-            android:id="@+id/btn_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
+        <RelativeLayout
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_search">
 
-            android:text="@string/add" />
+            <ImageView
+                android:id="@+id/img_search"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_search" />
+
+        </RelativeLayout>
+
 
     </LinearLayout>
 </fragment>

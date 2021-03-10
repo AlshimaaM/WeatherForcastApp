@@ -14,7 +14,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,10 +38,10 @@ import com.example.myapplication.data.remote.RetrofitInstance.getImage
 import com.example.myapplication.databinding.FragmentHomeBinding
 import com.example.myapplication.provider.Setting
 import com.example.myapplication.provider.AlertWork
-import com.example.myapplication.receiver.AlertReceiver
 import com.example.myapplication.util.ContextUtils.Companion.setLocale
 import com.example.myapplication.util.ContextUtils.Companion.settings
 import com.example.myapplication.util.Dialogs
+import com.example.myapplication.util.Dialogs.cancelAlarm
 import com.example.myapplication.viewmodel.WeatherViewModel
 import com.google.android.gms.location.*
 import com.google.gson.Gson
@@ -68,10 +67,6 @@ class HomeFragment :  Fragment() {
     val job = Job()
     val uiScope = CoroutineScope(Dispatchers.IO + job)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -104,6 +99,12 @@ class HomeFragment :  Fragment() {
                LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
        binding.daysRecyclerview.layoutManager =
                LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+       binding.moreDetails.setOnClickListener( {
+           binding.cardDetails.visibility=View.VISIBLE
+       })
+       binding.txtDays.setOnClickListener( {
+           binding.daysRecyclerview.visibility=View.VISIBLE
+       })
        hoursAdapter = HoursAdapter()
        dayAdapter = DayAdapter()
        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -113,8 +114,7 @@ class HomeFragment :  Fragment() {
        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
        workManager = WorkManager.getInstance(requireContext())
        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(
-                       requireContext())
-       )
+                       requireContext()))
        {
            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                    Uri.parse("package:" + requireActivity().getPackageName())
@@ -124,8 +124,118 @@ class HomeFragment :  Fragment() {
 
    }
 
+    @SuppressLint("SetTextI18n")
+    fun readFromDatabase() {
+        mProgress.show()
+        homeViewModel.getWeather(requireContext()).observe(viewLifecycleOwner, Observer {
+            it?.let {
+                    if (sharedPreferences.getString("UNIT_SYSTEM","metric").equals("metric")) {
+                    binding.tempreture.text = it.tempture.toString() + "°C"
+                        binding.wind.text = it.wind_speed.toString()+ " " +"m/s"
+                    } else if (sharedPreferences.getString("UNIT_SYSTEM","").equals("standard")) {
+                    binding.tempreture.text = it.tempture.toString() + "°K"
+                        binding.wind.text = it.wind_speed.toString()+ " " + "m/s"
+                } else {
+                    binding.tempreture.text = it.tempture.toString() + "°F"
+                        binding.wind.text = it.wind_speed.toString()+ " " + "m/h"
+                }
+                binding.pressure.text = it.pressure.toString()+ " hPa"
+                binding.dateHome.text = "${RetrofitInstance.dateNow}"
+                binding.humidity.text = it.humidity.toString() + "%"
+                binding.cloud.text = it.clouds.toString()
+                var city = it.city.split("/").toTypedArray()
+                binding.cityName.text = city[1]
+                binding.discription.text = it.descrption
+                binding.maxTep.text = it.dail_Weather[0].maxTemp.toString()
+                binding.minTep.text = it.dail_Weather[0].minTemp.toString()
+                var list: List<HoursEntity> = it.hour_Weather
+                var listDaily: List<DaysEntity> = it.dail_Weather
+                icon = it.icon
+                context?.let {
+                    Glide.with(it).load(getImage(icon)).into(binding.iconToday)
+                    hoursAdapter.setData(list, it)
+                    binding.hoursRecyclerview.adapter = hoursAdapter
+                    dayAdapter.fetchData(listDaily, it)
+                    binding.daysRecyclerview.adapter = dayAdapter
+
+                }
+            }
+            mProgress.dismiss()
+        })
+    }
+
+    fun viewWeather(latitude: String, longitude: String) {
+      //  mProgress.show()
+        setLocale(requireActivity(),Setting.languageSystem)
+        homeViewModel.fetchweather(latitude, longitude).observe(viewLifecycleOwner, Observer {
+            var weatherDatabase =homeViewModel.writeIntoDatabase(it)
+            uiScope.launch {
+                homeViewModel.weatherDatabase(weatherDatabase, requireContext())
+                withContext(Dispatchers.Main) {
+                    readFromDatabase()
+                  //  mProgress.dismiss()
+                }
+            }
+        })
+    }
+    private fun setUpAlerts() {
+        if (sharedPreferences.getBoolean("ALERT", true) && prefs.getString("alerts", "yes")
+                .equals("yes")
+        ) {
+            setUpFetchFromApiWorker()
+            editor.putString("alerts", "no")
+            editor.commit()
+            editor.apply()
+        } else if (!sharedPreferences.getBoolean("ALERT", true)) {
+            val requestCodeListJson = prefs.getString("requestsOfAlerts", " ")
+            val type: Type = object : TypeToken<List<Int>>() {}.type
+
+            if (Gson().fromJson<List<Int>>(requestCodeListJson, type) != null) {
+                var requestCodeList: List<Int> = Gson().fromJson(requestCodeListJson, type)
+                for (requestCodeItem in requestCodeList) {
+                    cancelAlarm(requireContext(),requestCodeItem)
+
+                }
+                workManager.cancelAllWorkByTag("PeriodicWork")
+                editor.putString("alerts", "yes")
+                editor.commit()
+                editor.apply()
+            }
+
+        }
+    }
+
+    private fun setUpFetchFromApiWorker() {
+        val data: Data = Data.Builder().putString("lat", Setting.latitude).putString("lon", Setting.longitude)
+                .putString("lang", Setting.languageSystem).putString("units", Setting.unitSystem)
+            .build()
+        val constrains = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+        val repeatingRequest = PeriodicWorkRequest.Builder(AlertWork::class.java, 1, TimeUnit.HOURS)
+            .addTag("PeriodicWork")
+            .setConstraints(constrains)
+            .setInputData(data)
+            .build()
+        workManager.enqueue(repeatingRequest)
+        workManager.getWorkInfoByIdLiveData(repeatingRequest.id).observe(viewLifecycleOwner,
+            androidx.lifecycle.Observer {
+            })
+    }
+    private fun locationNotEnable() {
+        val alertDialogBuilder = AlertDialog.Builder(requireContext())
+        alertDialogBuilder.setTitle(getString(R.string.loc_not_enable))
+        alertDialogBuilder.setMessage(getString(R.string.location_dialog_message))
+        alertDialogBuilder.setPositiveButton(getString(R.string.enable)) { dialog, which ->
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            ActivityCompat.startActivityForResult(requireActivity(), intent, PERMISSION_ID, Bundle())
+            dialog.dismiss()
+        }
+        alertDialogBuilder.setCancelable(false)
+        alertDialogBuilder.show()
+        viewWeather(Setting.latitude,Setting.longitude)
+
+    }
     @SuppressLint("MissingPermission")
-     fun getLastLocation() {
+    fun getLastLocation() {
         if (checkPermissions()) {
             if (isLocationEnabled()) {
                 mFusedLocationClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
@@ -142,7 +252,7 @@ class HomeFragment :  Fragment() {
                 locationNotEnable()
             }
         } else {
-           requestPermissions()
+            requestPermissions()
         }
     }
 
@@ -179,10 +289,10 @@ class HomeFragment :  Fragment() {
                         requireActivity(),
                         Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                    requireActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+                ActivityCompat.checkSelfPermission(
+                        requireActivity(),
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
         ) {
             return true
         }
@@ -195,9 +305,7 @@ class HomeFragment :  Fragment() {
                 arrayOf(
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION
-                ),
-                PERMISSION_ID
-        )
+                ), PERMISSION_ID)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -207,137 +315,20 @@ class HomeFragment :  Fragment() {
             }
         }
     }
-    @SuppressLint("SetTextI18n")
-    fun readFromDatabase() {
-       // mProgress.show()
-        homeViewModel.getWeather(requireContext()).observe(viewLifecycleOwner, Observer {
-            it?.let {
-                    if (sharedPreferences.getString("UNIT_SYSTEM","metric").equals("metric")) {
-                    binding.tempreture.text = it.tempture.toString() + "°C"
-                        binding.wind.text = it.wind_speed.toString()+ " " +"m/s"
-                    } else if (sharedPreferences.getString("UNIT_SYSTEM","").equals("standard")) {
-                    binding.tempreture.text = it.tempture.toString() + "°K"
-                        binding.wind.text = it.wind_speed.toString()+ " " + "m/s"
-                } else {
-                    binding.tempreture.text = it.tempture.toString() + "°F"
-                        binding.wind.text = it.wind_speed.toString()+ " " + "m/h"
-                }
-                binding.pressure.text = it.pressure.toString()+ " hPa"
-                binding.dateHome.text = "${RetrofitInstance.dateNow}"
-                binding.humidity.text = it.humidity.toString() + "%"
-                binding.cloud.text = it.clouds.toString()
-                var city = it.city.split("/").toTypedArray()
-                binding.cityName.text = city[1]
-                binding.discription.text = it.descrption
-                binding.maxTep.text = it.dail_Weather[0].maxTemp.toString()
-                binding.minTep.text = it.dail_Weather[0].minTemp.toString()
-                var list: List<HoursEntity> = it.hour_Weather
-                var listDaily: List<DaysEntity> = it.dail_Weather
-                icon = it.icon
-                context?.let {
-                    Glide.with(it).load(getImage(icon)).into(binding.iconToday)
-                    hoursAdapter.setData(list, it)
-                    binding.hoursRecyclerview.adapter = hoursAdapter
-                    dayAdapter.fetchData(listDaily, it)
-                    binding.daysRecyclerview.adapter = dayAdapter
 
-                }
-            }
-           // mProgress.dismiss()
-        })
-    }
-
-    fun viewWeather(latitude: String, longitude: String) {
-     //   mProgress.show()
-        setLocale(requireActivity(),Setting.languageSystem)
-        homeViewModel.fetchweather(latitude, longitude).observe(viewLifecycleOwner, Observer {
-            var weatherDatabase =homeViewModel.writeIntoDatabase(it)
-            uiScope.launch {
-                homeViewModel.weatherDatabase(weatherDatabase, requireContext())
-                withContext(Dispatchers.Main) {
-                    readFromDatabase()
-                  //  mProgress.dismiss()
-                }
-            }
-        })
-    }
-    private fun setUpAlerts() {
-        if (sharedPreferences.getBoolean("ALERT", true) && prefs.getString("alerts", "yes")
-                .equals("yes")
-        ) {
-            setUpFetchFromApiWorker()
-            editor.putString("alerts", "no")
-            editor.commit()
-            editor.apply()
-        } else if (!sharedPreferences.getBoolean("ALERT", true)) {
-            val requestCodeListJson = prefs.getString("requestsOfAlerts", " ")
-            val type: Type = object : TypeToken<List<Int>>() {}.type
-
-            if (Gson().fromJson<List<Int>>(requestCodeListJson, type) != null) {
-                var requestCodeList: List<Int> = Gson().fromJson(requestCodeListJson, type)
-                for (requestCodeItem in requestCodeList) {
-                    cancelAlarm(requestCodeItem)
-
-                }
-                workManager.cancelAllWorkByTag("PeriodicWork")
-                editor.putString("alerts", "yes")
-                editor.commit()
-                editor.apply()
-            }
-
-        }
-    }
-
-    fun cancelAlarm(requestCode: Int) {
-        val intent = Intent(requireContext(), AlertReceiver::class.java)
-        val sender = PendingIntent.getBroadcast(context, requestCode, intent, 0)
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(sender)
-    }
-
-    private fun setUpFetchFromApiWorker() {
-        val data: Data = Data.Builder().putString("lat", Setting.latitude).putString("lon", Setting.longitude
-        ).putString("lang", Setting.languageSystem).putString("units", Setting.unitSystem)
-            .build()
-        val constrains = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-        val repeatingRequest = PeriodicWorkRequest.Builder(
-            AlertWork::class.java, 1,
-            TimeUnit.HOURS
-        )
-            .addTag("PeriodicWork")
-            .setConstraints(constrains)
-            .setInputData(data)
-            .build()
-        workManager.enqueue(repeatingRequest)
-        workManager.getWorkInfoByIdLiveData(repeatingRequest.id).observe(viewLifecycleOwner,
-            androidx.lifecycle.Observer {
-            })
-    }
-    private fun locationNotEnable() {
-        val alertDialogBuilder = AlertDialog.Builder(requireContext())
-        alertDialogBuilder.setTitle(getString(R.string.loc_not_enable))
-        alertDialogBuilder.setMessage(getString(R.string.location_dialog_message))
-        alertDialogBuilder.setPositiveButton(getString(R.string.enable)) { dialog, which ->
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            ActivityCompat.startActivityForResult(requireActivity(), intent, PERMISSION_ID, Bundle())
-            dialog.dismiss()
-        }
-        alertDialogBuilder.setCancelable(false)
-        alertDialogBuilder.show()
-    }
- /*   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+   /* override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode==PERMISSION_ID){
             getLastLocation()
         }
-    }
-*/
+    }*/
     override fun onResume() {
         super.onResume()
         if (checkPermissions()){
             viewWeather(Setting.latitude,Setting.longitude)
         }
     }
+
  override fun onDestroy() {
      super.onDestroy()
      job.cancel()
